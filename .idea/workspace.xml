@@ -40,13 +40,22 @@
     <property name="project.structure.side.proportion" value="0.2" />
   </component>
   <component name="RunManager">
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
+    <configuration name="VRP" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="VehicleRoutingProblem" />
+      <module name="IntelSysGroupM" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
           <option name="containerStateName" value="" />
         </value>
       </option>
-      <option name="TEST_OBJECT" value="class" />
+      <option name="TEST_OBJECT" value="CLASS" />
+      <properties />
+      <listeners />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -62,6 +71,10 @@
       <updated>1598493726733</updated>
       <workItem from="1598493727936" duration="63000" />
       <workItem from="1598498032904" duration="788000" />
+      <workItem from="1598513713012" duration="110000" />
+      <workItem from="1598513855279" duration="25000" />
+      <workItem from="1599006654821" duration="999000" />
+      <workItem from="1599013761749" duration="5624000" />
     </task>
     <servers />
   </component>
@@ -69,17 +82,63 @@
     <option name="version" value="3" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="1053" y="259" key="#Auto_Import" timestamp="1598513769733">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state x="1053" y="259" key="#Auto_Import/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598513769733" />
     <state x="760" y="314" key="#Project_Structure" timestamp="1598498083995">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state x="760" y="314" key="#Project_Structure/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598498083995" />
-    <state x="734" y="395" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1598493783517">
+    <state x="734" y="395" width="1092" height="714" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1599016979808">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
-    <state x="734" y="395" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598493783517" />
-    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup" timestamp="1598498779459">
+    <state x="734" y="395" width="1092" height="714" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599016979808" />
+    <state x="1009" y="542" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1599016978100">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
-    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598498779459" />
+    <state x="1009" y="542" key="#com.intellij.ide.util.TreeClassChooserDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599016978100" />
+    <state x="1060" y="481" key="FileChooserDialogImpl" timestamp="1598513872202">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state x="1060" y="481" key="FileChooserDialogImpl/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598513872202" />
+    <state width="1234" height="394" key="GridCell.Tab.0.bottom" timestamp="1599020353901">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state width="1234" height="394" key="GridCell.Tab.0.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599020353901" />
+    <state width="1234" height="394" key="GridCell.Tab.0.center" timestamp="1599020353901">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state width="1234" height="394" key="GridCell.Tab.0.center/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599020353901" />
+    <state width="1234" height="394" key="GridCell.Tab.0.left" timestamp="1599020353901">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state width="1234" height="394" key="GridCell.Tab.0.left/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599020353901" />
+    <state width="1234" height="394" key="GridCell.Tab.0.right" timestamp="1599020353901">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state width="1234" height="394" key="GridCell.Tab.0.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599020353901" />
+    <state x="185" y="394" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1599018932803">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state x="185" y="394" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599018932803" />
+    <state x="871" y="315" key="new project wizard" timestamp="1598513877179">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state x="871" y="315" key="new project wizard/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598513877179" />
+    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup" timestamp="1599018948068">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599018948068" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.NullPointerException" package="java.lang" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

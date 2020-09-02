@@ -1,6 +1,8 @@
 package Entities;
 
+import javax.swing.*;
+
 //JPanel that contains the controls that can be used to manipulate the problem.
-public class Control
+public class Control extends JPanel
 {
 }

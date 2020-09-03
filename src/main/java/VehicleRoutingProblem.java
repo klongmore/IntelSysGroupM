@@ -1,3 +1,6 @@
+import Entities.Control;
+import Entities.Map;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -44,8 +47,31 @@ public class VehicleRoutingProblem implements Runnable
         JFrame VRPFrame = new JFrame("Vehicle Routing Problem");
 
         VRPFrame.setJMenuBar(menuBar);
-        VRPFrame.setSize(400, 400);
-        VRPFrame.setLayout(new BorderLayout());
+        VRPFrame.setSize(860, 640);
+        VRPFrame.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 1;
+        c.gridheight = 4;
+        c.weightx = 0;
+        c.weighty = 0.1;
+        c.anchor = GridBagConstraints.CENTER;
+        c.fill = GridBagConstraints.BOTH;
+
+        JPanel panel = new Control();
+        panel.setBorder(BorderFactory.createTitledBorder("Control"));
+        VRPFrame.add(panel, c);
+
+        c.gridx = 1;
+        c.gridwidth = 3;
+        c.weightx = 1;
+        panel = new Map();
+        panel.setBorder(BorderFactory.createTitledBorder("Map"));
+        VRPFrame.add(panel, c);
+
         VRPFrame.setVisible(true);
+        VRPFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }

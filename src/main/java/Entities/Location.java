@@ -12,4 +12,12 @@ public class Location
 
         System.out.println("Hi! I am located at " + X + ", " + Y + ".");
     }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
 }

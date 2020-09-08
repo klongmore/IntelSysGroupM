@@ -1,9 +1,12 @@
 import Entities.Control;
+import Entities.Location;
 import Entities.Map;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 //Runs the VRP solution. Either constructs random locations given a number, or constructs locations given a file specification
 public class VehicleRoutingProblem implements Runnable
@@ -73,5 +76,16 @@ public class VehicleRoutingProblem implements Runnable
 
         VRPFrame.setVisible(true);
         VRPFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // generate locations
+        Random random = new Random();
+        int numLocations = 50;
+        Location[] locations = new Location[numLocations + 1];
+        locations[0] = new Location(VRPFrame.getWidth()/2, VRPFrame.getHeight()/2);
+        for(int i = 1; i < numLocations + 1; i++)
+        {
+            locations[i] = new Location(random.nextInt(VRPFrame.getWidth()), random.nextInt(VRPFrame.getHeight()));
+        }
+        ((Map) panel).locations = locations;
     }
 }

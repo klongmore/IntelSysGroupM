@@ -1,3 +1,5 @@
+package Program;
+
 import Entities.Control;
 import Entities.Map;
 
@@ -8,6 +10,9 @@ import java.awt.*;
 //Runs the VRP solution. Either constructs random locations given a number, or constructs locations given a file specification
 public class VehicleRoutingProblem implements Runnable
 {
+    JFrame VRPFrame;
+    Map map;
+
     public static void main(String[] args)
     {
         SwingUtilities.invokeLater(new VehicleRoutingProblem());
@@ -15,6 +20,7 @@ public class VehicleRoutingProblem implements Runnable
 
     public void run()
     {
+        //Set up menus
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("File");
         menuBar.add(menu);
@@ -44,13 +50,15 @@ public class VehicleRoutingProblem implements Runnable
         });
         debug.add(fileWrite);
 
-        JFrame VRPFrame = new JFrame("Vehicle Routing Problem");
+        //Set up JFrame
+        VRPFrame = new JFrame("Vehicle Routing Problem");
 
         VRPFrame.setJMenuBar(menuBar);
         VRPFrame.setSize(860, 640);
         VRPFrame.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
+        //Add Control and Map panels
         c.gridx = 0;
         c.gridy = 0;
         c.gridwidth = 1;
@@ -59,7 +67,6 @@ public class VehicleRoutingProblem implements Runnable
         c.weighty = 0.1;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = GridBagConstraints.BOTH;
-
         JPanel panel = new Control();
         panel.setBorder(BorderFactory.createTitledBorder("Control"));
         VRPFrame.add(panel, c);
@@ -67,9 +74,9 @@ public class VehicleRoutingProblem implements Runnable
         c.gridx = 1;
         c.gridwidth = 3;
         c.weightx = 1;
-        panel = new Map();
-        panel.setBorder(BorderFactory.createTitledBorder("Map"));
-        VRPFrame.add(panel, c);
+        map = new Map();
+        map.setBorder(BorderFactory.createTitledBorder("Map"));
+        VRPFrame.add(map, c);
 
         VRPFrame.setVisible(true);
         VRPFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

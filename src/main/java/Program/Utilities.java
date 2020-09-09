@@ -1,5 +1,7 @@
+package Program;
+
 import Agents.DeliveryAgent;
-import Entities.Location;
+import Entities.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -10,8 +12,10 @@ import java.io.FileWriter;
 //Static methods that can be used anywhere in the program.
 public class Utilities
 {
-    public static void readSpecification(File spec)
+    public static Map readSpecification(File spec)
     {
+        Map result = new Map();
+
         JSONParser jsonParser = new JSONParser();
 
         try(FileReader reader = new FileReader(spec))
@@ -19,16 +23,25 @@ public class Utilities
             JSONObject JSONobj = (JSONObject)jsonParser.parse(reader);
 
             JSONArray agents = (JSONArray) JSONobj.get("agents");
-            JSONArray locations = (JSONArray) JSONobj.get("locations");
+            JSONArray parcels = (JSONArray) JSONobj.get("parcels");
 
             agents.forEach(agent -> new DeliveryAgent(((Long) ((JSONObject) agent).get("capacity")).intValue()));
 
-            locations.forEach(location -> new Location(((Long) ((JSONObject) location).get("X")).intValue(),((Long) ((JSONObject) location).get("Y")).intValue()));
+            parcels.forEach(parcel -> result.addParcel(((Long) ((JSONObject) parcel).get("X")).intValue(),((Long) ((JSONObject) parcel).get("Y")).intValue()));
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
+
+        return result;
+    }
+
+    public static Map generateSpecification()
+    {
+        Map result = new Map();
+
+        return result;
     }
 
     public static void writeDemoSpecification()
@@ -49,42 +62,36 @@ public class Utilities
         agentList.add(DA3);
         agentList.add(DA4);
 
-        JSONObject agents = new JSONObject();
-        agents.put("agents", agentList);
-
         JSONObject Loc1 = new JSONObject();
         JSONObject Loc2 = new JSONObject();
         JSONObject Loc3 = new JSONObject();
         JSONObject Loc4 = new JSONObject();
         JSONObject Loc5 = new JSONObject();
 
-        Loc1.put("X", 10);
-        Loc1.put("Y", 10);
+        Loc1.put("X", 40);
+        Loc1.put("Y", 40);
 
-        Loc2.put("X", 20);
-        Loc2.put("Y", 10);
+        Loc2.put("X", 120);
+        Loc2.put("Y", 120);
 
-        Loc3.put("X", 30);
-        Loc3.put("Y", 20);
+        Loc3.put("X", 400);
+        Loc3.put("Y", 100);
 
-        Loc4.put("X", 20);
-        Loc4.put("Y", 20);
+        Loc4.put("X", 160);
+        Loc4.put("Y", 200);
 
-        Loc5.put("X", 30);
-        Loc5.put("Y", 10);
+        Loc5.put("X", 300);
+        Loc5.put("Y", 90);
 
-        JSONArray locationList = new JSONArray();
-        locationList.add(Loc1);
-        locationList.add(Loc2);
-        locationList.add(Loc3);
-        locationList.add(Loc4);
-        locationList.add(Loc5);
-
-        JSONObject locations = new JSONObject();
-        locations.put("locations", locationList);
+        JSONArray parcelList = new JSONArray();
+        parcelList.add(Loc1);
+        parcelList.add(Loc2);
+        parcelList.add(Loc3);
+        parcelList.add(Loc4);
+        parcelList.add(Loc5);
 
         JSONObject total = new JSONObject();
-        total.put("locations", locationList);
+        total.put("parcels", parcelList);
         total.put("agents", agentList);
 
         try(FileWriter file = new FileWriter("VRP.json"))

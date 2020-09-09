@@ -7,7 +7,7 @@ import java.util.ArrayList;
 //JPanel to represent the routes and locations.
 public class Map extends JPanel
 {
-    public ArrayList<Location> locations = new ArrayList<>();;
+    public ArrayList<Location> locations = new ArrayList<>();
     public ArrayList<Parcel> parcels;
 
     public Map()
@@ -15,8 +15,9 @@ public class Map extends JPanel
         parcels = new ArrayList<>();
     }
 
-    public Map(ArrayList<Parcel> lParcels)
+    public void reMap(ArrayList<Parcel> lParcels)
     {
+        locations = new ArrayList<>();
         parcels = lParcels;
 
         for(Parcel parcel : parcels)
@@ -27,6 +28,7 @@ public class Map extends JPanel
             }
             parcel.getDestination().addPackage();
         }
+        repaint();
     }
 
     public void addParcel(int x, int y)
@@ -46,11 +48,11 @@ public class Map extends JPanel
             locations.add(toAdd);
         }
 
+        parcels.add(new Parcel(toAdd));
         toAdd.addPackage();
     }
 
-    @Override
-    public void paintComponents(Graphics g)
+    public void paint(Graphics g)
     {
         super.paintComponents(g);
         this.setBackground(Color.WHITE);

@@ -8,6 +8,7 @@ import org.json.simple.parser.JSONParser;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Random;
 
 //Static methods that can be used anywhere in the program.
 public class Utilities
@@ -37,11 +38,25 @@ public class Utilities
         return result;
     }
 
-    public static Map generateSpecification()
+    public static Map generateSpecification(int numParcels)
     {
         Map result = new Map();
 
+        //Generate
+        int diff = new Random().nextInt(4);
+        int numLocations = numParcels - diff;
+
+        for(int i = 0; i < numLocations; i++)
+        {
+
+        }
+
         return result;
+    }
+
+    public static void saveSpecification(Map map)
+    {
+
     }
 
     public static void writeDemoSpecification()
@@ -74,7 +89,7 @@ public class Utilities
         Loc2.put("X", 120);
         Loc2.put("Y", 120);
 
-        Loc3.put("X", 400);
+        Loc3.put("X", 100000);
         Loc3.put("Y", 100);
 
         Loc4.put("X", 160);

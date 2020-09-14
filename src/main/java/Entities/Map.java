@@ -7,8 +7,10 @@ import java.util.ArrayList;
 //JPanel to represent the routes and locations.
 public class Map extends JPanel
 {
-    public ArrayList<Location> locations = new ArrayList<>();
-    public ArrayList<Parcel> parcels;
+    private ArrayList<Location> locations = new ArrayList<>();
+    private ArrayList<Parcel> parcels;
+    private int scaleOffset = 50;
+    private Location depot;
 
     public Map()
     {
@@ -31,6 +33,11 @@ public class Map extends JPanel
         repaint();
     }
 
+    public ArrayList<Parcel> getParcels()
+    {
+        return parcels;
+    }
+
     public void addParcel(int x, int y)
     {
         Location toAdd = null;
@@ -49,21 +56,69 @@ public class Map extends JPanel
         }
 
         parcels.add(new Parcel(toAdd));
-        toAdd.addPackage();
     }
 
     public void paint(Graphics g)
     {
-        super.paintComponents(g);
         this.setBackground(Color.WHITE);
 
-        Graphics2D g2D = (Graphics2D) g;
-
-        // draw locations
-        g2D.setColor(Color.BLACK);
-        for(Location location : locations)
+        if(!locations.isEmpty())
         {
-            location.paint(g);
+            Location MaxXLocation = null;
+            Location MinXLocation = null;
+
+            Location MaxYLocation = null;
+            Location MinYLocation = null;
+
+            for(Location loc : locations)
+            {
+                if((MaxXLocation != null && MaxXLocation.getX() < loc.getX()) || MaxXLocation == null)
+                {
+                    MaxXLocation = loc;
+                }
+
+                if((MinXLocation != null && MinXLocation.getX() > loc.getX()) || MinXLocation == null)
+                {
+                    MinXLocation = loc;
+                }
+
+                if((MaxYLocation != null && MaxYLocation.getY() < loc.getY()) || MaxYLocation == null)
+                {
+                    MaxYLocation = loc;
+                }
+
+                if((MinYLocation != null && MinYLocation.getY() > loc.getY()) || MinYLocation == null)
+                {
+                    MinYLocation = loc;
+                }
+            }
+
+            MaxXLocation.setScaledX(getWidth() - scaleOffset);
+            MinXLocation.setScaledX(scaleOffset);
+
+            MaxYLocation.setScaledY(getHeight() - scaleOffset);
+            MinYLocation.setScaledY(scaleOffset);
+
+            System.out.println(MaxXLocation.getScaledX());
+
+            g.setColor(Color.RED);
+            //depot.paint(g);
+
+            // draw locations
+            for(Location location : locations)
+            {
+                if(location.getScaledX() == 0)
+                {
+                    float scale = (float)(MaxXLocation.getScaledX() - 100)/(MaxXLocation.getX() - MinXLocation.getX());
+                    System.out.println(scale);
+
+                    location.setScaledX((int)(scale * location.getX()));
+                    System.out.println(location.getScaledX());
+                }
+
+                g.setColor(Color.BLACK);
+                location.paint(g);
+            }
         }
     }
 }

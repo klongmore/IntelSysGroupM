@@ -37,7 +37,7 @@ public class Control extends JPanel
         JButton generateButton = new JButton("Generate");
         generateButton.addActionListener(e->
         {
-            Utilities.generateSpecification();
+            //Utilities.generateSpecification();
         });
 
         result.add(generateButton);

@@ -38,7 +38,7 @@ public class VehicleRoutingProblem implements Runnable
             int returnValue = chooser.showOpenDialog(null);
             if(returnValue == JFileChooser.APPROVE_OPTION)
             {
-                map.reMap(Utilities.readSpecification(chooser.getSelectedFile()).parcels);
+                map.reMap(Utilities.readSpecification(chooser.getSelectedFile()).getParcels());
                 VRPFrame.repaint();
             }
         });

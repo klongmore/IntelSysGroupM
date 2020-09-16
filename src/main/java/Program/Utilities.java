@@ -51,8 +51,8 @@ public class Utilities
 
             JSONArray agents = (JSONArray) JSONobj.get("agents");
             JSONArray parcels = (JSONArray) JSONobj.get("parcels");
-
-            agents.forEach(agent -> new DeliveryAgent(((Long) ((JSONObject) agent).get("capacity")).intValue()));
+            // below line is commented out for now as DeliveryAgent class is now a Jadex agent and the original constructor has been removed - Alex
+            //agents.forEach(agent -> new DeliveryAgent(((Long) ((JSONObject) agent).get("capacity")).intValue()));
 
             parcels.forEach(parcel -> result.addParcel(((Long) ((JSONObject) parcel).get("X")).intValue(),((Long) ((JSONObject) parcel).get("Y")).intValue()));
         }

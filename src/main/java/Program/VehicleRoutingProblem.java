@@ -1,11 +1,15 @@
 package Program;
 
+import Agents.DeliveryAgent;
+import Agents.MasterRoutingAgent;
 import Entities.Control;
 import Entities.Map;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import jadex.base.PlatformConfiguration;
+import jadex.base.Starter;
 
 //Runs the VRP solution. Either constructs random locations given a number, or constructs locations given a file specification
 public class VehicleRoutingProblem implements Runnable
@@ -20,6 +24,13 @@ public class VehicleRoutingProblem implements Runnable
 
     public void run()
     {
+        // Jadex config
+        PlatformConfiguration conf = PlatformConfiguration.getMinimal();
+        conf.addComponent(DeliveryAgent.class);
+        conf.addComponent(MasterRoutingAgent.class);
+        conf.setGui(true);
+        Starter.createPlatform(conf);
+
         //Set up menus
         JMenuBar menuBar = new JMenuBar();
         JMenu mapMenu = new JMenu("Map");

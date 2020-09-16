@@ -11,7 +11,7 @@ public class Control extends JPanel
 {
     public Control()
     {
-        Panel GBLPanel = new Panel();
+        JPanel GBLPanel = new JPanel();
         GBLPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
@@ -20,29 +20,8 @@ public class Control extends JPanel
         c.gridy = 0;
         GBLPanel.add(AddAgentPanel(), c);
 
-        c.gridy=1;
-        GBLPanel.add(GeneratePanel(), c);
-
         this.setLayout(new BorderLayout());
         this.add(GBLPanel, BorderLayout.PAGE_START);
-    }
-
-    private JPanel GeneratePanel()
-    {
-        JPanel result = new JPanel();
-
-        TitledBorder title = BorderFactory.createTitledBorder("Generate Parcels");
-        result.setBorder(title);
-
-        JButton generateButton = new JButton("Generate");
-        generateButton.addActionListener(e->
-        {
-            //Utilities.generateSpecification();
-        });
-
-        result.add(generateButton);
-
-        return result;
     }
 
     private JPanel AddAgentPanel()

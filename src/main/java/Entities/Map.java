@@ -17,20 +17,11 @@ public class Map extends JPanel
         parcels = new ArrayList<>();
     }
 
-    public void reMap(ArrayList<Parcel> lParcels)
+    public void reMap(Map newMap)
     {
-        locations = new ArrayList<>();
-        parcels = lParcels;
-
-        for(Parcel parcel : parcels)
-        {
-            if(!locations.contains(parcel.getDestination()))
-            {
-                locations.add(parcel.getDestination());
-            }
-            parcel.getDestination().addPackage();
-        }
-        repaint();
+        locations = newMap.locations;
+        parcels = newMap.parcels;
+        depot = newMap.depot;
     }
 
     public ArrayList<Parcel> getParcels()
@@ -55,6 +46,7 @@ public class Map extends JPanel
             locations.add(toAdd);
         }
 
+        toAdd.addPackage();
         parcels.add(new Parcel(toAdd));
     }
 
@@ -72,34 +64,29 @@ public class Map extends JPanel
 
             for(Location loc : locations)
             {
-                if((MaxXLocation != null && MaxXLocation.getX() < loc.getX()) || MaxXLocation == null)
+                if(MaxXLocation == null || MaxXLocation.getX() < loc.getX())
                 {
                     MaxXLocation = loc;
                 }
 
-                if((MinXLocation != null && MinXLocation.getX() > loc.getX()) || MinXLocation == null)
+                if(MinXLocation == null || MinXLocation.getX() > loc.getX())
                 {
                     MinXLocation = loc;
                 }
 
-                if((MaxYLocation != null && MaxYLocation.getY() < loc.getY()) || MaxYLocation == null)
+                if(MaxYLocation == null || MaxYLocation.getY() < loc.getY())
                 {
                     MaxYLocation = loc;
                 }
 
-                if((MinYLocation != null && MinYLocation.getY() > loc.getY()) || MinYLocation == null)
+                if(MinYLocation == null || MinYLocation.getY() > loc.getY())
                 {
                     MinYLocation = loc;
                 }
             }
 
-            MaxXLocation.setScaledX(getWidth() - scaleOffset);
-            MinXLocation.setScaledX(scaleOffset);
-
-            MaxYLocation.setScaledY(getHeight() - scaleOffset);
-            MinYLocation.setScaledY(scaleOffset);
-
-            System.out.println(MaxXLocation.getScaledX());
+            float scaleX = ((float)getWidth() - scaleOffset * 2)/(MaxXLocation.getX() - MinXLocation.getX());
+            float scaleY = ((float)getHeight() - scaleOffset * 2)/(MaxYLocation.getY() - MinYLocation.getY());
 
             g.setColor(Color.RED);
             //depot.paint(g);
@@ -107,14 +94,8 @@ public class Map extends JPanel
             // draw locations
             for(Location location : locations)
             {
-                if(location.getScaledX() == 0)
-                {
-                    float scale = (float)(MaxXLocation.getScaledX() - 100)/(MaxXLocation.getX() - MinXLocation.getX());
-                    System.out.println(scale);
-
-                    location.setScaledX((int)(scale * location.getX()));
-                    System.out.println(location.getScaledX());
-                }
+                location.setScaledX((int)(scaleX * (location.getX() - MinXLocation.getX())) + scaleOffset);
+                location.setScaledY((int)(scaleY * (location.getY() - MinYLocation.getY())) + scaleOffset);
 
                 g.setColor(Color.BLACK);
                 location.paint(g);

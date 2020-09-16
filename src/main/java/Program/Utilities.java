@@ -2,17 +2,43 @@ package Program;
 
 import Agents.DeliveryAgent;
 import Entities.Map;
+import Entities.Route;
+import javafx.scene.paint.Color;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Random;
 
 //Static methods that can be used anywhere in the program.
 public class Utilities
 {
+    private static final Color[] KELLY_COLOURS = {
+            Color.web("0xFFB300"),
+            Color.web("0x803E75"),
+            Color.web("0xFF6800"),
+            Color.web("0xA6BDD7"),
+            Color.web("0xC10020"),
+            Color.web("0xCEA262"),
+            Color.web("0x817066"),
+            Color.web("0x007D34"),
+            Color.web("0xF6768E"),
+            Color.web("0x00538A"),
+            Color.web("0xFF7A5C"),
+            Color.web("0x53377A"),
+            Color.web("0xFF8E00"),
+            Color.web("0xB32851"),
+            Color.web("0xF4C800"),
+            Color.web("0x7F180D"),
+            Color.web("0x93AA00"),
+            Color.web("0x593315"),
+            Color.web("0xF13A13"),
+            Color.web("0x232C16"),
+    };
+
     public static Map readSpecification(File spec)
     {
         Map result = new Map();
@@ -59,6 +85,11 @@ public class Utilities
 
     }
 
+    public static void assignColours(ArrayList<Route> routes)
+    {
+
+    }
+
     public static void writeDemoSpecification()
     {
         JSONObject DA1 = new JSONObject();
@@ -82,6 +113,7 @@ public class Utilities
         JSONObject Loc3 = new JSONObject();
         JSONObject Loc4 = new JSONObject();
         JSONObject Loc5 = new JSONObject();
+        JSONObject Loc6 = new JSONObject();
 
         Loc1.put("X", 40);
         Loc1.put("Y", 40);
@@ -89,8 +121,11 @@ public class Utilities
         Loc2.put("X", 120);
         Loc2.put("Y", 120);
 
-        Loc3.put("X", 100000);
+        Loc3.put("X", 400);
         Loc3.put("Y", 100);
+
+        Loc6.put("X", 400);
+        Loc6.put("Y", 100);
 
         Loc4.put("X", 160);
         Loc4.put("Y", 200);
@@ -104,6 +139,7 @@ public class Utilities
         parcelList.add(Loc3);
         parcelList.add(Loc4);
         parcelList.add(Loc5);
+        parcelList.add(Loc6);
 
         JSONObject total = new JSONObject();
         total.put("parcels", parcelList);

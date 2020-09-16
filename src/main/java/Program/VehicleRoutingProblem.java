@@ -22,13 +22,14 @@ public class VehicleRoutingProblem implements Runnable
     {
         //Set up menus
         JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu("File");
-        menuBar.add(menu);
+        JMenu mapMenu = new JMenu("Map");
+        menuBar.add(mapMenu);
 
         JMenu debug = new JMenu("Debug");
         menuBar.add(debug);
 
-        JMenuItem fileRead = new JMenuItem("Open File");
+        JMenuItem fileRead = new JMenuItem("Load");
+        fileRead.setToolTipText("Select a JSON File to load the Map from.");
         fileRead.addActionListener(e->
         {
             JFileChooser chooser = new JFileChooser();
@@ -38,11 +39,36 @@ public class VehicleRoutingProblem implements Runnable
             int returnValue = chooser.showOpenDialog(null);
             if(returnValue == JFileChooser.APPROVE_OPTION)
             {
-                map.reMap(Utilities.readSpecification(chooser.getSelectedFile()).getParcels());
+                map.reMap(Utilities.readSpecification(chooser.getSelectedFile()));
                 VRPFrame.repaint();
             }
         });
-        menu.add(fileRead);
+
+        JMenuItem randomGenerate = new JMenuItem("Generate");
+        randomGenerate.setToolTipText("Randomly generate a Map configuration.");
+        randomGenerate.addActionListener(e->
+        {
+            int numParcels = 0;
+            boolean error = true;
+
+            do
+            {
+                try
+                {
+                    numParcels = Integer.parseInt(JOptionPane.showInputDialog(VRPFrame, "Enter number of parcels:", "Generate Map", JOptionPane.QUESTION_MESSAGE));
+                    error = false;
+                }
+                catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                }
+            }while(error);
+
+            map.reMap(Utilities.generateSpecification(numParcels));
+        });
+
+        mapMenu.add(fileRead);
+        mapMenu.add(randomGenerate);
 
         JMenuItem fileWrite = new JMenuItem("Write Demo File");
         fileWrite.addActionListener(e->
@@ -76,9 +102,9 @@ public class VehicleRoutingProblem implements Runnable
         c.gridwidth = 3;
         c.weightx = 1;
         map = new Map();
-        map.setBorder(BorderFactory.createTitledBorder("Map"));
         VRPFrame.add(map, c);
 
+        VRPFrame.setMinimumSize(VRPFrame.getSize());
         VRPFrame.setVisible(true);
         VRPFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }

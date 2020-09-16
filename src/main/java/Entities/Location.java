@@ -33,16 +33,6 @@ public class Location
         return y;
     }
 
-    public int getScaledX()
-    {
-        return scaledX;
-    }
-
-    public int getScaledY()
-    {
-        return scaledY;
-    }
-
     public void setScaledX(int sX)
     {
         scaledX = sX;
@@ -55,9 +45,9 @@ public class Location
 
     public void paint(Graphics g)
     {
-        g.fillRect(scaledX - width/2, y - height/2, width, height);
+        g.fillRect(scaledX - width/2, scaledY - height/2, width, height);
 
         g.setColor(Color.WHITE);
-        g.drawString(numPackages.toString(), scaledX - width/6, y + height/3);
+        g.drawString(numPackages.toString(), scaledX - width/6, scaledY + height/3);
     }
 }

@@ -3,17 +3,22 @@ package Program;
 import Agents.DeliveryAgent;
 import Agents.MasterRoutingAgent;
 import Entities.Control;
+import Entities.Location;
 import Entities.Map;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 //Runs the VRP solution. Either constructs random locations given a number, or constructs locations given a file specification
 public class VehicleRoutingProblem implements Runnable
 {
     JFrame VRPFrame;
     Map map;
+    ArrayList<Location> locations;
+    Graphics2D g;
 
     public static void main(String[] args)
     {
@@ -22,6 +27,10 @@ public class VehicleRoutingProblem implements Runnable
 
     public void run()
     {
+        // init map and locations
+        map = new Map();
+        locations = new ArrayList<>();
+
         //Set up menus
         JMenuBar menuBar = new JMenuBar();
         JMenu mapMenu = new JMenu("Map");
@@ -66,7 +75,8 @@ public class VehicleRoutingProblem implements Runnable
                 }
             }while(error);
 
-            map.reMap(Utilities.generateSpecification(numParcels));
+            map.reMap(Utilities.generateSpecification(numParcels, locations));
+            VRPFrame.repaint();
         });
 
         mapMenu.add(fileRead);
@@ -103,11 +113,23 @@ public class VehicleRoutingProblem implements Runnable
         c.gridx = 1;
         c.gridwidth = 3;
         c.weightx = 1;
-        map = new Map();
+//        JPanel mapContainerPanel = new JPanel();
+//        mapContainerPanel.setBorder(BorderFactory.createTitledBorder("Map"));
+//        mapContainerPanel.add(map);
+//        VRPFrame.add(mapContainerPanel, c);
+        map.setBorder(BorderFactory.createTitledBorder("Map"));
         VRPFrame.add(map, c);
-
         VRPFrame.setMinimumSize(VRPFrame.getSize());
         VRPFrame.setVisible(true);
         VRPFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // generate locations
+        Random rand = new Random();
+        for (int i = 0; i < 10; i++)
+        {
+            locations.add(new Location(rand.nextInt(map.getWidth()), rand.nextInt(map.getHeight())));
+        }
+        locations.get(0).makeDepot();
+        map.setLocations(locations);
     }
 }

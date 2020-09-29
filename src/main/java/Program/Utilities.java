@@ -1,7 +1,9 @@
 package Program;
 
 import Agents.DeliveryAgent;
+import Entities.Location;
 import Entities.Map;
+import Entities.Parcel;
 import Entities.Route;
 import javafx.scene.paint.Color;
 import org.json.simple.JSONArray;
@@ -64,19 +66,30 @@ public class Utilities
         return result;
     }
 
-    public static Map generateSpecification(int numParcels)
+    public static Map generateSpecification(int numParcels, ArrayList<Location> locations)
     {
         Map result = new Map();
+        ArrayList<Parcel> parcels = new ArrayList();
 
         //Generate
-        int diff = new Random().nextInt(4);
-        int numLocations = numParcels - diff;
-
-        for(int i = 0; i < numLocations; i++)
+        Random rand = new Random();
+        Location randLocation;
+        for(int i = 0; i < numParcels; i++)
         {
+            randLocation = locations.get(rand.nextInt(locations.size()));
+            if(!randLocation.isDepot())
+            {
+                parcels.add(new Parcel(randLocation));
+                randLocation.addPackage();
+            }
+            else
+            {
+                i--;
+            }
 
         }
 
+        result.setLocations(locations);
         return result;
     }
 

@@ -7,13 +7,14 @@ import java.util.ArrayList;
 //JPanel to represent the routes and locations.
 public class Map extends JPanel
 {
-    private ArrayList<Location> locations = new ArrayList<>();
+    private ArrayList<Location> locations;
     private ArrayList<Parcel> parcels;
     private int scaleOffset = 50;
     private Location depot;
 
     public Map()
     {
+        locations = new ArrayList<>();
         parcels = new ArrayList<>();
     }
 
@@ -52,6 +53,7 @@ public class Map extends JPanel
 
     public void paint(Graphics g)
     {
+        super.paint(g);
         this.setBackground(Color.WHITE);
 
         if(!locations.isEmpty())
@@ -97,9 +99,27 @@ public class Map extends JPanel
                 location.setScaledX((int)(scaleX * (location.getX() - MinXLocation.getX())) + scaleOffset);
                 location.setScaledY((int)(scaleY * (location.getY() - MinYLocation.getY())) + scaleOffset);
 
-                g.setColor(Color.BLACK);
-                location.paint(g);
+                if(location.isDepot())
+                {
+                    g.setColor(Color.RED);
+                }
+                else
+                {
+                    g.setColor(Color.BLACK);
+                }
+                g.fillRect(location.getScaledX() - location.getWidth()/2, location.getScaledY() - location.getHeight()/2,
+                        location.getWidth(), location.getHeight());
+                g.setColor(Color.WHITE);
+                g.drawString(location.getNumPackages().toString(), location.getScaledX() - location.getWidth()/6,
+                        location.getScaledY() + location.getHeight()/3);
             }
         }
+    }
+
+    public void setLocations(ArrayList<Location> locations) {
+        this.locations = locations;
+    }
+    public void setParcels(ArrayList<Parcel> parcels) {
+        this.parcels = parcels;
     }
 }

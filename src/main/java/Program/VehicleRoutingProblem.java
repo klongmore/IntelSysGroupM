@@ -17,6 +17,7 @@ public class VehicleRoutingProblem implements Runnable
 {
     JFrame VRPFrame;
     Map map;
+    Control control;
 
     public static void main(String[] args)
     {
@@ -27,6 +28,7 @@ public class VehicleRoutingProblem implements Runnable
     {
         // init map and locations
         map = new Map();
+        control  = new Control();
 
         //Set up menus
         JMenuBar menuBar = new JMenuBar();
@@ -48,6 +50,7 @@ public class VehicleRoutingProblem implements Runnable
             if(returnValue == JFileChooser.APPROVE_OPTION)
             {
                 map.reMap(Utilities.readSpecification(chooser.getSelectedFile()));
+                control.update(map);
                 VRPFrame.repaint();
             }
         });
@@ -73,6 +76,7 @@ public class VehicleRoutingProblem implements Runnable
             }while(error);
 
             map.reMap(Utilities.generateSpecification(numParcels));
+            control.update(map);
             VRPFrame.repaint();
         });
 
@@ -103,9 +107,8 @@ public class VehicleRoutingProblem implements Runnable
         c.weighty = 0.1;
         c.anchor = GridBagConstraints.CENTER;
         c.fill = GridBagConstraints.BOTH;
-        JPanel panel = new Control();
-        panel.setBorder(BorderFactory.createTitledBorder("Control"));
-        VRPFrame.add(panel, c);
+        control.setBorder(BorderFactory.createTitledBorder("Control"));
+        VRPFrame.add(control, c);
 
         c.gridx = 1;
         c.gridwidth = 3;

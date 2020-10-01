@@ -80,6 +80,7 @@ public class Map extends JPanel
         return mapJSON;
     }
 
+    public ArrayList<Location> getLocations() { return locations; }
     public void setLocations(ArrayList<Location> locations) {
         this.locations = locations;
     }

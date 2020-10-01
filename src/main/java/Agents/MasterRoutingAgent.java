@@ -2,34 +2,41 @@ package Agents;
 
 //Takes constraints from the DeliveryAgents and uses an algorithm to determine the routes.
 
-import Services.ChatService;
-import Services.IChatService;
+import Entities.Location;
+import Entities.Map;
+import Entities.Route;
+import Interfaces.IMasterRoutingAgent;
 import jadex.bridge.IInternalAccess;
-import jadex.bridge.service.RequiredServiceInfo;
-import jadex.bridge.service.component.IRequiredServicesFeature;
-import jadex.bridge.service.types.clock.IClockService;
-import jadex.commons.future.ITerminableIntermediateFuture;
+import jadex.commons.future.Future;
+import jadex.commons.future.IFuture;
 import jadex.micro.annotation.*;
 
-@Agent
-@RequiredServices({
-        @RequiredService(name="clockservice", type= IClockService.class,
-                binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM)),
-        @RequiredService(name="chatservices", type = IChatService.class, multiple = true,
-                binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM, dynamic = true))})
-@ProvidedServices(@ProvidedService(type= IChatService.class, implementation=@Implementation(ChatService.class)))
-public class MasterRoutingAgent
-{
-    @AgentFeature
-    IRequiredServicesFeature requiredServicesFeature;
+import java.util.ArrayList;
 
-    @AgentBody
-    public void body(IInternalAccess agent)
-    {
-        ITerminableIntermediateFuture<IChatService> fut = requiredServicesFeature
-                .getRequiredServices("chatservices");
-        fut.get()
-                .forEach((it) -> // -- Java8 Lambda function usage, see: https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
-                        it.message(agent.getComponentIdentifier().getName(), "Master routing agent ready"));
+@Arguments(@Argument(name="mapRef", description = "Reference to locations map", clazz = Entities.Map.class))
+@ProvidedServices(@ProvidedService(type= IMasterRoutingAgent.class))
+@Agent
+public class MasterRoutingAgent implements IMasterRoutingAgent
+{
+    @AgentArgument
+    Map mapRef;
+
+//    @AgentBody
+//    public void body(IInternalAccess agent) {
+//        System.out.println(agent.getComponentIdentifier().getLocalName() + " added.");
+//    }
+    @Override
+    public IFuture<Route> calculateRoute(int capacity) {
+        // returns dummy route for testing
+        Location l1 = new Location(1, 1);
+        Location l2 = new Location(2, 2);
+        Location l3 = new Location(3, 3);
+        ArrayList<Location> locations = new ArrayList<>();
+        locations.add(l1);
+        locations.add(l2);
+        locations.add(l3);
+        Route route = new Route();
+        route.setStops(locations);
+        return new Future<>(new Route());
     }
 }

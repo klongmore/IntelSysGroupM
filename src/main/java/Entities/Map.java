@@ -1,5 +1,8 @@
 package Entities;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -50,6 +53,40 @@ public class Map extends JPanel
         parcels.add(new Parcel(toAdd));
     }
 
+    public void setDepot(Location newDepot)
+    {
+        depot = newDepot;
+    }
+
+    public JSONObject mapJSON()
+    {
+        JSONArray parcelList = new JSONArray();
+        for(Parcel parcel : parcels)
+        {
+            JSONObject loc = new JSONObject();
+            loc.put("X", parcel.getDestination().getX());
+            loc.put("Y", parcel.getDestination().getY());
+            parcelList.add(loc);
+        }
+
+        JSONObject jsonDepot = new JSONObject();
+        jsonDepot.put("X", depot.getX());
+        jsonDepot.put("Y", depot.getY());
+
+        JSONObject mapJSON = new JSONObject();
+        mapJSON.put("depot", jsonDepot);
+        mapJSON.put("parcels", parcelList);
+
+        return mapJSON;
+    }
+
+    public void setLocations(ArrayList<Location> locations) {
+        this.locations = locations;
+    }
+    public void setParcels(ArrayList<Parcel> parcels) {
+        this.parcels = parcels;
+    }
+
     public void paint(Graphics g)
     {
         super.paint(g);
@@ -63,7 +100,10 @@ public class Map extends JPanel
             Location MaxYLocation = null;
             Location MinYLocation = null;
 
-            for(Location loc : locations)
+            ArrayList<Location> tempLocations = new ArrayList<>(locations);
+            tempLocations.add(depot);
+
+            for(Location loc : tempLocations)
             {
                 if(MaxXLocation == null || MaxXLocation.getX() < loc.getX())
                 {
@@ -98,23 +138,11 @@ public class Map extends JPanel
             // draw locations
             for(Location location : locations)
             {
+                g.setColor(Color.BLACK);
                 location.setScaledX((int)(scaleX * (location.getX() - MinXLocation.getX())) + scaleOffset);
                 location.setScaledY((int)(scaleY * (location.getY() - MinYLocation.getY())) + scaleOffset);
-                g.setColor(Color.BLACK);
                 location.paint(g);
             }
         }
-    }
-
-    public void setDepot(Location newDepot)
-    {
-        depot = newDepot;
-    }
-
-    public void setLocations(ArrayList<Location> locations) {
-        this.locations = locations;
-    }
-    public void setParcels(ArrayList<Parcel> parcels) {
-        this.parcels = parcels;
     }
 }

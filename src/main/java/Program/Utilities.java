@@ -76,7 +76,7 @@ public class Utilities
         Map result = new Map();
 
         Random rand = new Random();
-        int locationDeviation = rand.nextInt(3);
+        int locationDeviation = rand.nextInt(numParcels/4);
 
         for(int i = 0; i < numParcels - locationDeviation; i++)
         {
@@ -164,7 +164,7 @@ public class Utilities
 
         JSONObject depot = new JSONObject();
         depot.put("X", 200);
-        depot.put("Y", 100);
+        depot.put("Y", 300);
 
         JSONObject total = new JSONObject();
         total.put("parcels", parcelList);

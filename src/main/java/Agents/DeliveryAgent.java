@@ -11,7 +11,6 @@ import jadex.bridge.service.types.clock.IClockService;
 import jadex.commons.future.ITerminableIntermediateFuture;
 import jadex.micro.annotation.*;
 
-
 @Agent
 @RequiredServices({
         @RequiredService(name="clockservice", type= IClockService.class,

@@ -28,15 +28,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
     @Override
     public IFuture<Route> calculateRoute(int capacity) {
         // returns dummy route for testing
-        Location l1 = new Location(1, 1);
-        Location l2 = new Location(2, 2);
-        Location l3 = new Location(3, 3);
-        ArrayList<Location> locations = new ArrayList<>();
-        locations.add(l1);
-        locations.add(l2);
-        locations.add(l3);
-        Route route = new Route();
-        route.setStops(locations);
+
         return new Future<>(new Route());
     }
 }

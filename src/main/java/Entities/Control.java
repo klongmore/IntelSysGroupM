@@ -61,10 +61,6 @@ public class Control extends JPanel
         GNNbutton.addActionListener(e->
         {
             //TODO: Call to MRA to run GNN algorithm.
-            for(IComponentIdentifier i : cms.getComponentIdentifiers().get())
-            {
-                
-            }
         });
 
         result.add(GNNbutton);

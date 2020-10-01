@@ -6,6 +6,7 @@ import Entities.Map;
 import Entities.Parcel;
 import Entities.Route;
 import javafx.scene.paint.Color;
+import org.chocosolver.solver.constraints.nary.nValue.amnv.rules.R;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -53,9 +54,13 @@ public class Utilities
 
             JSONArray agents = (JSONArray) JSONobj.get("agents");
             JSONArray parcels = (JSONArray) JSONobj.get("parcels");
-            // below line is commented out for now as DeliveryAgent class is now a Jadex agent and the original constructor has been removed - Alex
-            //agents.forEach(agent -> new DeliveryAgent(((Long) ((JSONObject) agent).get("capacity")).intValue()));
+            JSONObject depot = (JSONObject) JSONobj.get("depot");
 
+            //TODO: Add Agents based on the agents in the JSON file
+
+            Location setDepot = new Location(((Long)depot.get("X")).intValue(), ((Long)depot.get("Y")).intValue());
+            setDepot.makeDepot();
+            result.setDepot(setDepot);
             parcels.forEach(parcel -> result.addParcel(((Long) ((JSONObject) parcel).get("X")).intValue(),((Long) ((JSONObject) parcel).get("Y")).intValue()));
         }
         catch(Exception e)
@@ -66,30 +71,33 @@ public class Utilities
         return result;
     }
 
-    public static Map generateSpecification(int numParcels, ArrayList<Location> locations)
+    public static Map generateSpecification(int numParcels)
     {
         Map result = new Map();
-        ArrayList<Parcel> parcels = new ArrayList();
 
-        //Generate
         Random rand = new Random();
-        Location randLocation;
-        for(int i = 0; i < numParcels; i++)
-        {
-            randLocation = locations.get(rand.nextInt(locations.size()));
-            if(!randLocation.isDepot())
-            {
-                parcels.add(new Parcel(randLocation));
-                randLocation.addPackage();
-            }
-            else
-            {
-                i--;
-            }
+        int locationDeviation = rand.nextInt(3);
 
+        for(int i = 0; i < numParcels - locationDeviation; i++)
+        {
+            int posX = rand.nextInt(500);
+            int posY = rand.nextInt(500);
+            result.addParcel(posX, posY);
+
+            if(locationDeviation != 0)
+            {
+                result.addParcel(posX, posY);
+                locationDeviation--;
+                numParcels--;
+            }
         }
 
-        result.setLocations(locations);
+        int posX = rand.nextInt(500);
+        int posY = rand.nextInt(500);
+        Location depot = new Location(posX, posY);
+        depot.makeDepot();
+        result.setDepot(depot);
+
         return result;
     }
 
@@ -154,9 +162,14 @@ public class Utilities
         parcelList.add(Loc5);
         parcelList.add(Loc6);
 
+        JSONObject depot = new JSONObject();
+        depot.put("X", 200);
+        depot.put("Y", 100);
+
         JSONObject total = new JSONObject();
         total.put("parcels", parcelList);
         total.put("agents", agentList);
+        total.put("depot", depot);
 
         try(FileWriter file = new FileWriter("VRP.json"))
         {

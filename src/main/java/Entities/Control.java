@@ -27,8 +27,6 @@ public class Control extends JPanel
 
     public Control()
     {
-        // Jadex config
-//        config.addComponent(DeliveryAgent.class);
         Starter.createPlatform(conf);
         conf.addComponent(MasterRoutingAgent.class);
         conf.setGui(true);
@@ -42,9 +40,29 @@ public class Control extends JPanel
         c.gridy = 0;
         GBLPanel.add(AddAgentPanel(), c);
 
+        c.gridy = 1;
+        GBLPanel.add(AlgorithmPanel(), c);
+
         this.setLayout(new BorderLayout());
         this.add(GBLPanel, BorderLayout.PAGE_START);
+    }
 
+    private JPanel AlgorithmPanel()
+    {
+        JPanel result = new JPanel();
+        TitledBorder title = BorderFactory.createTitledBorder("Run Algorithm");
+        result.setBorder(title);
+
+        JButton GNNbutton = new JButton("Grouped Nearest Neighbour");
+        GNNbutton.addActionListener(e->
+        {
+            //TODO: Call to MRA to run GNN algorithm.
+        });
+
+        result.add(GNNbutton);
+
+        result.setMaximumSize(result.getPreferredSize());
+        return result;
     }
 
     private JPanel AddAgentPanel()
@@ -60,30 +78,17 @@ public class Control extends JPanel
         JSpinner capacitySpinner = new JSpinner(spinnerModel);
 
         JButton addButton = new JButton("Add Agent");
-        addButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                vehicleCountLabel.setText("Vehicles: " + ++VehicleCount);
-//                conf.addComponent(DeliveryAgent.class);
-                CreationInfo ci = new CreationInfo(
-                        SUtil.createHashMap(new String[]{"capacity"}, new Object[]{spinnerModel.getValue()}));
-                cms.createComponent("Vehicle" + VehicleCount, "Agents.DeliveryAgent.class", ci);
-//                System.out.println(VehicleCount);
-            }
-        });
-
-        JButton startButton = new JButton("Start");
-        startButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-//                Starter.createPlatform(conf);
-            }
+        addButton.addActionListener(e ->
+        {
+            vehicleCountLabel.setText("Vehicles: " + ++VehicleCount);
+            CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{spinnerModel.getValue()}));
+            cms.createComponent("Vehicle" + VehicleCount, "Agents.DeliveryAgent.class", ci);
         });
 
         result.add(vehicleCountLabel);
-        result.add(new JLabel("<html><br></html>"));
         result.add(capacityLabel);
         result.add(capacitySpinner);
         result.add(addButton);
-        result.add(startButton);
         result.setMaximumSize(result.getPreferredSize());
 
         return result;

@@ -16,13 +16,10 @@ public class Location
     {
         x = X;
         y = Y;
-
-//        System.out.println("Hi! I am located at " + X + ", " + Y + ".");
     }
 
     public void addPackage()
     {
-        System.out.println("Adding Package");
         numPackages++;
     }
 
@@ -44,14 +41,6 @@ public class Location
         scaledY = sY;
     }
 
-    public int getScaledX() { return scaledX; }
-
-    public int getScaledY() { return scaledY; }
-
-    public int getWidth() { return width; }
-
-    public int getHeight() { return height; }
-
     public Integer getNumPackages() { return numPackages; }
 
     public void makeDepot()
@@ -59,13 +48,14 @@ public class Location
         isDepot = true;
     }
 
-    public boolean isDepot()
-    {
-        return isDepot;
-    }
-
     public void paint(Graphics g)
     {
+        g.fillRect(scaledX - width/2, scaledY - height/2, width, height);
 
+        if(!isDepot)
+        {
+            g.setColor(Color.WHITE);
+            g.drawString(numPackages.toString(), scaledX - width/6, scaledY + height/3);
+        }
     }
 }

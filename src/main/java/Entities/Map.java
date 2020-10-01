@@ -9,7 +9,6 @@ public class Map extends JPanel
 {
     private ArrayList<Location> locations;
     private ArrayList<Parcel> parcels;
-    private int scaleOffset = 50;
     private Location depot;
 
     public Map()
@@ -87,33 +86,29 @@ public class Map extends JPanel
                 }
             }
 
+            int scaleOffset = 50;
             float scaleX = ((float)getWidth() - scaleOffset * 2)/(MaxXLocation.getX() - MinXLocation.getX());
             float scaleY = ((float)getHeight() - scaleOffset * 2)/(MaxYLocation.getY() - MinYLocation.getY());
 
             g.setColor(Color.RED);
-            //depot.paint(g);
+            depot.setScaledX((int)(scaleX * (depot.getX() - MinXLocation.getX())) + scaleOffset);
+            depot.setScaledY((int)(scaleY * (depot.getY() - MinYLocation.getY())) + scaleOffset);
+            depot.paint(g);
 
             // draw locations
             for(Location location : locations)
             {
                 location.setScaledX((int)(scaleX * (location.getX() - MinXLocation.getX())) + scaleOffset);
                 location.setScaledY((int)(scaleY * (location.getY() - MinYLocation.getY())) + scaleOffset);
-
-                if(location.isDepot())
-                {
-                    g.setColor(Color.RED);
-                }
-                else
-                {
-                    g.setColor(Color.BLACK);
-                }
-                g.fillRect(location.getScaledX() - location.getWidth()/2, location.getScaledY() - location.getHeight()/2,
-                        location.getWidth(), location.getHeight());
-                g.setColor(Color.WHITE);
-                g.drawString(location.getNumPackages().toString(), location.getScaledX() - location.getWidth()/6,
-                        location.getScaledY() + location.getHeight()/3);
+                g.setColor(Color.BLACK);
+                location.paint(g);
             }
         }
+    }
+
+    public void setDepot(Location newDepot)
+    {
+        depot = newDepot;
     }
 
     public void setLocations(ArrayList<Location> locations) {

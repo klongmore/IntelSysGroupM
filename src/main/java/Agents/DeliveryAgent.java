@@ -22,14 +22,6 @@ import jadex.micro.annotation.*;
 @Arguments(@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10"))
 public class DeliveryAgent
 {
-//    private int capacity;
-//
-//    public DeliveryAgent(int cap)
-//    {
-//        capacity = cap;
-//        System.out.println("Hi! I have a capacity of " + capacity + ".");
-//    }
-
     @AgentFeature
     IRequiredServicesFeature requiredServicesFeature;
 

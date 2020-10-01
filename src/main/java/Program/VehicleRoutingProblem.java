@@ -17,8 +17,6 @@ public class VehicleRoutingProblem implements Runnable
 {
     JFrame VRPFrame;
     Map map;
-    ArrayList<Location> locations;
-    Graphics2D g;
 
     public static void main(String[] args)
     {
@@ -29,7 +27,6 @@ public class VehicleRoutingProblem implements Runnable
     {
         // init map and locations
         map = new Map();
-        locations = new ArrayList<>();
 
         //Set up menus
         JMenuBar menuBar = new JMenuBar();
@@ -75,7 +72,7 @@ public class VehicleRoutingProblem implements Runnable
                 }
             }while(error);
 
-            map.reMap(Utilities.generateSpecification(numParcels, locations));
+            map.reMap(Utilities.generateSpecification(numParcels));
             VRPFrame.repaint();
         });
 
@@ -113,23 +110,10 @@ public class VehicleRoutingProblem implements Runnable
         c.gridx = 1;
         c.gridwidth = 3;
         c.weightx = 1;
-//        JPanel mapContainerPanel = new JPanel();
-//        mapContainerPanel.setBorder(BorderFactory.createTitledBorder("Map"));
-//        mapContainerPanel.add(map);
-//        VRPFrame.add(mapContainerPanel, c);
         map.setBorder(BorderFactory.createTitledBorder("Map"));
         VRPFrame.add(map, c);
         VRPFrame.setMinimumSize(VRPFrame.getSize());
         VRPFrame.setVisible(true);
         VRPFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        // generate locations
-        Random rand = new Random();
-        for (int i = 0; i < 10; i++)
-        {
-            locations.add(new Location(rand.nextInt(map.getWidth()), rand.nextInt(map.getHeight())));
-        }
-        locations.get(0).makeDepot();
-        map.setLocations(locations);
     }
 }

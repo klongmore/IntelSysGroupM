@@ -5,7 +5,7 @@ import java.awt.*;
 //Represents a location at an XY coordinate on the plane.
 public class Location
 {
-    private int x,y;
+    public int x = 0, y = 0;
     private int scaledX = 0, scaledY = 0;
     private final int width = 20;
     private final int height = 20;
@@ -14,8 +14,8 @@ public class Location
 
     public Location(int X, int Y)
     {
-        x = X;
-        y = Y;
+        this.x = X;
+        this.y = Y;
     }
 
     public void addPackage()
@@ -24,11 +24,11 @@ public class Location
     }
 
     public int getX() {
-        return x;
+        return this.x;
     }
 
     public int getY() {
-        return y;
+        return this.y;
     }
 
     public void setScaledX(int sX)

@@ -12,19 +12,20 @@ import jadex.commons.future.DefaultResultListener;
 import jadex.commons.future.IFuture;
 import jadex.micro.annotation.*;
 
-@Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10"),
-            @Argument(name="route",  description = "Delivery Agent route", clazz = Route.class)})
-@RequiredServices(@RequiredService(name="routeService", type= IMasterRoutingAgent.class, multiple = true,
-        binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM, dynamic = true)))
+import java.util.ArrayList;
+import java.util.List;
+
+//@Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10"),
+//            @Argument(name="route",  description = "Delivery Agent route", clazz = Route.class)})
+@Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10")})
+@RequiredServices(@RequiredService(name="routeService", type= IMasterRoutingAgent.class,
+        binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM)))
 @ProvidedServices(@ProvidedService(name="routeService", type= IMasterRoutingAgent.class, implementation=@Implementation(Agents.MasterRoutingAgent.class)))
 @Agent
 public class DeliveryAgent
 {
     @AgentArgument
     int capacity;
-    @AgentArgument
-    Route route;
-
     @AgentFeature
     IRequiredServicesFeature requiredServicesFeature;
 
@@ -32,21 +33,32 @@ public class DeliveryAgent
     public void body (IInternalAccess agent)
     {
         System.out.println(agent.getComponentIdentifier().getLocalName() + " added, with capacity: " + capacity);
-
         IFuture<IMasterRoutingAgent> fut = requiredServicesFeature.getRequiredService("routeService");
         fut.addResultListener(new DefaultResultListener<IMasterRoutingAgent>() {
             @Override
+            // triggers when the MRA has a result for its calculateRoute method
             public void resultAvailable(IMasterRoutingAgent iMasterRoutingAgent) {
-                System.out.println("Result available");
                 iMasterRoutingAgent.calculateRoute(capacity)
-                        .addResultListener(l -> route = l);
+                        .addResultListener(l -> getRoute(l));
             }
         });
     }
 
-    public Route getRoute()
+    public Route getRoute(List<Integer[]> list)
     {
-        return route;
+        ArrayList<Location> locations = new ArrayList<>();
+        // iterates through the integer list to create new locations
+        // note: for some reason I couldn't get this to work with a list of Routes,
+        // therefore the list of integer arrays must be converted into a list of locations.
+        for(Integer[] i : list)
+        {
+            // uncomment to see output
+            System.out.println(i[0] + ", " + i[1]);
+//            locations.add(new Location(i[0], i[1]));
+        }
+        Route result = new Route(locations);
+
+        return result;
     }
 }
 

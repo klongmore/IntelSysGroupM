@@ -6,12 +6,17 @@ import java.util.ArrayList;
 //A collection of locations used by the DeliveryAgents.
 public class Route
 {
-    ArrayList<Location> stops;
+    private ArrayList<Location> stops;
     Color color;
 
-    public Route()
+    public Route(ArrayList<Location> locations)
     {
-        stops = new ArrayList<Location>();
+        this.stops = new ArrayList<>();
+        for(Location l : locations)
+        {
+            this.stops.add(l);
+        }
+//        System.out.println(this.stops.size());
     }
 
     public void setColor(javafx.scene.paint.Color newColor)
@@ -27,11 +32,13 @@ public class Route
         g.setColor(color);
     }
 
-    public ArrayList<Location> getStops() {
-        return stops;
+    public ArrayList<Location> getStops()
+    {
+        return this.stops;
     }
 
-    public void setStops(ArrayList<Location> locations) {
-        stops = locations;
+    public void setStops(ArrayList<Location> locations)
+    {
+        this.stops = locations;
     }
 }

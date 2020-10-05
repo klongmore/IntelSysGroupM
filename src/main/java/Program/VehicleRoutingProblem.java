@@ -16,7 +16,6 @@ import java.util.Random;
 public class VehicleRoutingProblem implements Runnable
 {
     JFrame VRPFrame;
-    Map map;
     Control control;
 
     public static void main(String[] args)
@@ -27,7 +26,6 @@ public class VehicleRoutingProblem implements Runnable
     public void run()
     {
         // init map and locations
-        map = new Map();
         control  = new Control();
 
         //Set up menus
@@ -49,8 +47,7 @@ public class VehicleRoutingProblem implements Runnable
             int returnValue = chooser.showOpenDialog(null);
             if(returnValue == JFileChooser.APPROVE_OPTION)
             {
-                map.reMap(Utilities.readSpecification(chooser.getSelectedFile()));
-                control.update(map);
+                control.reMap(Utilities.readSpecification(chooser.getSelectedFile()));
                 VRPFrame.repaint();
             }
         });
@@ -75,8 +72,7 @@ public class VehicleRoutingProblem implements Runnable
                 }
             }while(error);
 
-            map.reMap(Utilities.generateSpecification(numParcels));
-            control.update(map);
+            control.reMap(Utilities.generateSpecification(numParcels));
             VRPFrame.repaint();
         });
 
@@ -113,8 +109,8 @@ public class VehicleRoutingProblem implements Runnable
         c.gridx = 1;
         c.gridwidth = 3;
         c.weightx = 1;
-        map.setBorder(BorderFactory.createTitledBorder("Map"));
-        VRPFrame.add(map, c);
+        control.getMap().setBorder(BorderFactory.createTitledBorder("Map"));
+        VRPFrame.add(control.getMap(), c);
         VRPFrame.setMinimumSize(VRPFrame.getSize());
         VRPFrame.setVisible(true);
         VRPFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

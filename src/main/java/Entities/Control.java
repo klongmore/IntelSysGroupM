@@ -7,10 +7,13 @@ import jadex.base.PlatformConfiguration;
 import jadex.base.Starter;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
+import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.SUtil;
+import jadex.commons.future.IFuture;
+import jadex.commons.future.ITuple2Future;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -18,6 +21,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 //JPanel that contains the controls that can be used to manipulate the problem.
 public class Control extends JPanel
@@ -26,10 +30,12 @@ public class Control extends JPanel
     private IExternalAccess platform = Starter.createPlatform(conf).get();
     private IComponentManagementService cms = SServiceProvider.getService(platform, IComponentManagementService.class).get();
     public int VehicleCount = 0;
-    private Map mapRef;
+    private Map map;
+    private List<Route> routes;
 
     public Control()
     {
+        map = new Map();
         conf.setGui(true);
         Starter.createPlatform(conf);
 //        CreationInfo MRA_ci = new CreationInfo(SUtil.createHashMap(new String[]{"mapRef"}, new Object[]{mapRef}));
@@ -85,8 +91,9 @@ public class Control extends JPanel
         addButton.addActionListener(e ->
         {
             vehicleCountLabel.setText("Vehicles: " + ++VehicleCount);
-            CreationInfo DA_ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity", "route"}, new Object[]{spinnerModel.getValue(), new Route()}));
-            cms.createComponent("Vehicle" + VehicleCount, "Agents.DeliveryAgent.class", DA_ci);
+            CreationInfo DA_ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{spinnerModel.getValue()}));
+            String id = "Vehicle" + VehicleCount;
+            IComponentIdentifier iCID = cms.createComponent(id, "Agents.DeliveryAgent.class", DA_ci).getFirstResult();
             super.repaint();
         });
 
@@ -99,14 +106,13 @@ public class Control extends JPanel
         return result;
     }
 
-    public void update(Map map)
+    public void reMap(Map m)
     {
-        mapRef = map;
-//        for(Location location : mapRef.getLocations())
-//        {
-//            System.out.println(location.getX() + ", " + location.getY());
-//        }
-        CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"mapRef"}, new Object[]{map}));
-        cms.createComponent("Master Routing Agent", "Agents.MasterRoutingAgent.class", ci);
+        map.reMap(m);
+    }
+
+    public Map getMap()
+    {
+        return map;
     }
 }

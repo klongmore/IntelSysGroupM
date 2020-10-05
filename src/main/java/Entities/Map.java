@@ -12,6 +12,7 @@ public class Map extends JPanel
 {
     private ArrayList<Location> locations;
     private ArrayList<Parcel> parcels;
+    private ArrayList<Route> routes;
     private Location depot;
 
     public Map()
@@ -145,5 +146,9 @@ public class Map extends JPanel
                 location.paint(g);
             }
         }
+    }
+
+    public void setRoutes(ArrayList<Route> routes) {
+        this.routes = routes;
     }
 }

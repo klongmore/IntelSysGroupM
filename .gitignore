@@ -75,3 +75,6 @@ fabric.properties
 VRP.json
 VRP.json
 .idea/workspace.xml
+.idea/workspace.xml
+*.xml
+.idea/workspace.xml

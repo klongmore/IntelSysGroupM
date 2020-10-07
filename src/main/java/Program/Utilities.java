@@ -1,12 +1,9 @@
 package Program;
 
-import Agents.DeliveryAgent;
 import Entities.Location;
 import Entities.Map;
-import Entities.Parcel;
 import Entities.Route;
 import javafx.scene.paint.Color;
-import org.chocosolver.solver.constraints.nary.nValue.amnv.rules.R;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -42,6 +39,8 @@ public class Utilities
             Color.web("0x232C16"),
     };
 
+
+    //Reads a JSON specification and generates a Map.
     public static Map readSpecification(File spec)
     {
         Map result = new Map();
@@ -71,6 +70,7 @@ public class Utilities
         return result;
     }
 
+    //Generates a random specification that is then loaded to the map.
     public static Map generateSpecification(int numParcels)
     {
         Map result = new Map();
@@ -108,9 +108,13 @@ public class Utilities
 
     public static void assignColours(ArrayList<Route> routes)
     {
-
+        for(int i = 0; i < routes.size(); i++)
+        {
+            routes.get(i).setColor(KELLY_COLOURS[i]);
+        }
     }
 
+    //Random demo specification for testing
     public static void writeDemoSpecification()
     {
         JSONObject DA1 = new JSONObject();

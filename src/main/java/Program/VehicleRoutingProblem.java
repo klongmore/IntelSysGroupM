@@ -1,16 +1,10 @@
 package Program;
 
-import Agents.DeliveryAgent;
-import Agents.MasterRoutingAgent;
 import Entities.Control;
-import Entities.Location;
-import Entities.Map;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Random;
 
 //Runs the VRP solution. Either constructs random locations given a number, or constructs locations given a file specification
 public class VehicleRoutingProblem implements Runnable

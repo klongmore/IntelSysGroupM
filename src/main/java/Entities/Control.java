@@ -1,26 +1,16 @@
 package Entities;
 
-import Agents.DeliveryAgent;
-import Agents.MasterRoutingAgent;
-import Program.Utilities;
 import jadex.base.PlatformConfiguration;
 import jadex.base.Starter;
 import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
-import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.SUtil;
-import jadex.commons.future.IFuture;
-import jadex.commons.future.ITuple2Future;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.List;
 
 //JPanel that contains the controls that can be used to manipulate the problem.
@@ -38,8 +28,6 @@ public class Control extends JPanel
         map = new Map();
         conf.setGui(true);
         Starter.createPlatform(conf);
-//        CreationInfo MRA_ci = new CreationInfo(SUtil.createHashMap(new String[]{"mapRef"}, new Object[]{mapRef}));
-//        cms.createComponent("Master Routing Agent", "Agents.MasterRoutingAgent.class", MRA_ci);
 
         JPanel GBLPanel = new JPanel();
         GBLPanel.setLayout(new GridBagLayout());
@@ -66,7 +54,7 @@ public class Control extends JPanel
         JButton GNNbutton = new JButton("Grouped Nearest Neighbour");
         GNNbutton.addActionListener(e->
         {
-            //TODO: Call to MRA to run GNN algorithm.
+
         });
 
         result.add(GNNbutton);

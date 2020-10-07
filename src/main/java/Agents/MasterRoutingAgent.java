@@ -2,11 +2,7 @@ package Agents;
 
 //Takes constraints from the DeliveryAgents and uses an algorithm to determine the routes.
 
-import Entities.Location;
-import Entities.Map;
-import Entities.Route;
 import Interfaces.IMasterRoutingAgent;
-import jadex.bridge.IInternalAccess;
 import jadex.commons.future.Future;
 import jadex.commons.future.IFuture;
 import jadex.micro.annotation.*;
@@ -18,10 +14,6 @@ import java.util.List;
 @Agent
 public class MasterRoutingAgent implements IMasterRoutingAgent
 {
-//    @AgentBody
-//    public void body(IInternalAccess agent) {
-//        System.out.println(agent.getComponentIdentifier().getLocalName() + " added.");
-//    }
     @Override
     public IFuture<List<Integer[]>> calculateRoute(int capacity) {
         // returns dummy route for testing

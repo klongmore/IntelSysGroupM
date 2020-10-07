@@ -92,9 +92,10 @@ public class Utilities
             }
         }
 
-        int posX = rand.nextInt(500);
-        int posY = rand.nextInt(500);
-        Location depot = new Location(posX, posY);
+//        int posX = rand.nextInt(500);
+//        int posY = rand.nextInt(500);
+//        Location depot = new Location(posX, posY);
+        Location depot = new Location(250, 250);
         depot.makeDepot();
         result.setDepot(depot);
 

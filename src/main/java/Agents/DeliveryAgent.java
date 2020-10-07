@@ -20,7 +20,7 @@ import java.util.List;
 @Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10")})
 @RequiredServices(@RequiredService(name="routeService", type= IMasterRoutingAgent.class,
         binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM)))
-@ProvidedServices(@ProvidedService(name="routeService", type= IMasterRoutingAgent.class, implementation=@Implementation(Agents.MasterRoutingAgent.class)))
+//@ProvidedServices(@ProvidedService(name="routeService", type= IMasterRoutingAgent.class, implementation=@Implementation(Agents.MasterRoutingAgent.class)))
 @Agent
 public class DeliveryAgent
 {
@@ -41,24 +41,26 @@ public class DeliveryAgent
                 iMasterRoutingAgent.calculateRoute(capacity)
                         .addResultListener(l -> getRoute(l));
             }
+            public void exceptionOccurred(Exception e)
+            {
+                System.out.println(e);
+            }
         });
     }
 
-    public Route getRoute(List<Integer[]> list)
+    public void getRoute(List<Integer[]> list)
     {
         ArrayList<Location> locations = new ArrayList<>();
         // iterates through the integer list to create new locations
         // note: for some reason I couldn't get this to work with a list of Routes,
         // therefore the list of integer arrays must be converted into a list of locations.
-        for(Integer[] i : list)
-        {
-            // uncomment to see output
-            System.out.println(i[0] + ", " + i[1]);
+//        for(Integer[] i : list)
+//        {
+//            // uncomment to see output
+//            System.out.println(i[0] + ", " + i[1]);
 //            locations.add(new Location(i[0], i[1]));
-        }
+//        }
         Route result = new Route(locations);
-
-        return result;
     }
 }
 

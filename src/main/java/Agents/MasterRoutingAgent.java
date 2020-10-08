@@ -3,6 +3,7 @@ package Agents;
 //Takes constraints from the DeliveryAgents and uses an algorithm to determine the routes.
 
 import Entities.Control;
+import Entities.DeliveryAgent;
 import Entities.Location;
 import Entities.Map;
 import Entities.Route;
@@ -26,14 +27,14 @@ import java.util.Collections;
 import java.util.List;
 
 // TODO: add agent argument for algorithm type which will then determine the route calculation.
-@ProvidedServices(@ProvidedService(name = "routeService", type= IMasterRoutingAgent.class))
+@ProvidedServices(@ProvidedService(name = "masterRoutingService", type= IMasterRoutingAgent.class))
 @Agent
 public class MasterRoutingAgent implements IMasterRoutingAgent
 {
-    int numDeliveryAgents = 0;
-    Control control;
-    Map map;
-    JFrame GUI;
+    private Control control;
+    private Map map;
+    private JFrame GUI;
+    private ArrayList<DeliveryAgent> deliveryAgents;
 
     @AgentBody
     public void body(IInternalAccess agent)
@@ -46,6 +47,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         JMenu mapMenu = new JMenu("Map");
         control = new Control();
         map = new Map();
+        deliveryAgents = new ArrayList<>();
 
         //Generate a random specification.
         map.reMap(Utilities.generateSpecification(20));
@@ -54,44 +56,45 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         menuBar.add(mapMenu);
         GUI.setJMenuBar(menuBar);
         GUI.setSize(860, 640);
-        GUI.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
+//        GUI.setLayout(new GridBagLayout());
+        GUI.setLayout(new BorderLayout());
+//        GridBagConstraints c = new GridBagConstraints();
 
-        // control panel
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 1;
-        c.gridheight = 4;
-        c.weightx = 0;
-        c.weighty = 0.1;
-        c.anchor = GridBagConstraints.CENTER;
-        c.fill = GridBagConstraints.BOTH;
-        control.setBorder(BorderFactory.createTitledBorder("Control"));
-        JLabel capacityLabel = new JLabel("Capacity");
-        int vehicleCount = 0;
-        JLabel vehicleCountLabel = new JLabel("Vehicles: " + vehicleCount);
-        SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 100, 1);
-        JSpinner capacitySpinner = new JSpinner(spinnerModel);
-
-        JButton addButton = new JButton("Add Agent");
-        control.add(vehicleCountLabel);
-        control.add(capacityLabel);
-        control.add(capacitySpinner);
-        control.add(addButton);
-        GUI.add(control, c);
+        // control panel - currently hidden as it is not needed yet
+//        c.gridx = 0;
+//        c.gridy = 0;
+//        c.gridwidth = 1;
+//        c.gridheight = 4;
+//        c.weightx = 0;
+//        c.weighty = 0.1;
+//        c.anchor = GridBagConstraints.CENTER;
+//        c.fill = GridBagConstraints.BOTH;
+//        control.setBorder(BorderFactory.createTitledBorder("Control"));
+//        JLabel capacityLabel = new JLabel("Capacity");
+//        int vehicleCount = 0;
+//        JLabel vehicleCountLabel = new JLabel("Vehicles: " + vehicleCount);
+//        SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 100, 1);
+//        JSpinner capacitySpinner = new JSpinner(spinnerModel);
+//
+//        JButton addButton = new JButton("Add Agent");
+//        control.add(vehicleCountLabel);
+//        control.add(capacityLabel);
+//        control.add(capacitySpinner);
+//        control.add(addButton);
+//        GUI.add(control, c);
 
         // map panel
-        c.gridx = 1;
-        c.gridwidth = 3;
-        c.weightx = 1;
+//        c.gridx = 1;
+//        c.gridwidth = 3;
+//        c.weightx = 1;
         map.setBorder(BorderFactory.createTitledBorder("Map"));
-        GUI.add(map, c);
+        GUI.add(map, BorderLayout.CENTER);
         GUI.setMinimumSize(GUI.getSize());
         GUI.setVisible(true);
         GUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void updateMap(int c)
+    private void update()
     {
         // nearest neighbour
         map.setRoutes(new ArrayList<>());
@@ -128,6 +131,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         }
 
         // generate routes from the determined groups
+        ArrayList<Route> computedRoutes = new ArrayList<>();
         for(ArrayList<Location> g : locationGroups)
         {
             // connect the next closest location to the previous
@@ -144,15 +148,33 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
             // set depot as first and last locations in route
             newList.add(0, map.getDepot());
             newList.add(map.getDepot());
-            map.addRoute(new Route(newList));
+//            map.addRoute(new Route(newList));
+            computedRoutes.add((new Route(newList)));
+        }
+
+        // assign agents with a route as close to their capacity as possible.
+        for(DeliveryAgent d : deliveryAgents)
+        {
+            Route bestRoute = new Route(new ArrayList<>());
+            for(Route r : computedRoutes)
+            {
+                if(r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity()
+                    && r.isAssigned() == false)
+                {
+                    bestRoute = r;
+                    r.assigned();
+                }
+            }
+            d.setRoute(bestRoute);
+            map.addRoute(d.getRoute());
         }
     }
 
     @Override
-    public IFuture<List<Integer[]>> calculateRoute(int capacity)
+    public IFuture<List<Integer[]>> addDeliveryAgent(IComponentIdentifier id, int capacity)
     {
-        numDeliveryAgents++;
-        updateMap(capacity);
+        deliveryAgents.add(new DeliveryAgent(id, capacity));
+        update();
         Future<List<Integer[]>> result = new Future<>();
         List<Integer[]> list = new ArrayList<>();
 
@@ -163,7 +185,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         }
         result.setResult(list);
 
-        // return route to Delivery Agent
+        // return route information to Delivery Agent
         return result;
     }
 }

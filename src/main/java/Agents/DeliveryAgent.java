@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10")})
-@RequiredServices(@RequiredService(name="routeService", type= IMasterRoutingAgent.class, binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM)))
+@RequiredServices(@RequiredService(name="masterRoutingService", type= IMasterRoutingAgent.class, binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM)))
 @Agent
 public class DeliveryAgent
 {
@@ -28,14 +28,14 @@ public class DeliveryAgent
     public void body (IInternalAccess agent)
     {
         System.out.println(agent.getComponentIdentifier().getLocalName() + " added, with capacity: " + capacity);
-        IFuture<IMasterRoutingAgent> fut = requiredServicesFeature.getRequiredService("routeService");
+        IFuture<IMasterRoutingAgent> fut = requiredServicesFeature.getRequiredService("masterRoutingService");
         fut.addResultListener(new DefaultResultListener<IMasterRoutingAgent>()
         {
             //Triggers when the MRA has a result for its calculateRoute method
             @Override
             public void resultAvailable(IMasterRoutingAgent iMasterRoutingAgent)
             {
-                iMasterRoutingAgent.calculateRoute(capacity)
+                iMasterRoutingAgent.addDeliveryAgent(agent.getComponentIdentifier(), capacity)
                         .addResultListener(l -> getRoute(l));
             }
             public void exceptionOccurred(Exception e)

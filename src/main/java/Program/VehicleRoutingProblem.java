@@ -14,13 +14,18 @@ public class VehicleRoutingProblem
 {
     public static void main(String[] args)
     {
+        int nDeliveryAgents = 3;
+        int[] capacities = {7, 9, 12};
         PlatformConfiguration config = PlatformConfiguration.getMinimal();
         config.setGui(true);
         config.addComponent(MasterRoutingAgent.class);
         IExternalAccess platform = Starter.createPlatform(config).get();
         IComponentManagementService cms = SServiceProvider.getService(platform, IComponentManagementService.class).get();
-        CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{120}));
-        cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci);
+        for(int i=0; i < nDeliveryAgents; i++)
+        {
+            CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{capacities[i]}));
+            cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci);
+        }
     }
 
 //    public void run()

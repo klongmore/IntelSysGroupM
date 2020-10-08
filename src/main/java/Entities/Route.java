@@ -8,16 +8,20 @@ import java.util.Random;
 public class Route
 {
     private ArrayList<Location> stops;
+    private int numParcels;
     Color color;
+    private boolean assigned;
 
     public Route(ArrayList<Location> locations)
     {
         Random rand = new Random();
         this.color = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
         this.stops = new ArrayList<>();
+        this.assigned = false;
         for(Location l : locations)
         {
             this.stops.add(l);
+            this.numParcels += l.getNumPackages();
         }
 //        System.out.println(this.stops.size());
     }
@@ -52,5 +56,19 @@ public class Route
     public void setStops(ArrayList<Location> locations)
     {
         this.stops = locations;
+    }
+
+    public int getNumParcels() {
+        return numParcels;
+    }
+
+    public void assigned()
+    {
+        this.assigned = true;
+    }
+
+    public boolean isAssigned()
+    {
+        return this.assigned;
     }
 }

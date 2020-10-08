@@ -1,7 +1,8 @@
 package Program;
 
+import Agents.DeliveryAgent;
+import Agents.MasterRoutingAgent;
 import Entities.Control;
-<<<<<<< HEAD
 import Entities.Location;
 import Entities.Map;
 import jadex.base.PlatformConfiguration;
@@ -11,12 +12,12 @@ import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.SUtil;
-=======
->>>>>>> ef1cbe1e59cef262aa4b801fd989a20de10636e5
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Random;
 
 //Runs the VRP solution. Either constructs random locations given a number, or constructs locations given a file specification
 public class VehicleRoutingProblem //implements Runnable

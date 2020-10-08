@@ -2,7 +2,7 @@ package Entities;
 
 public class Parcel
 {
-    private final Location destination;
+    private Location destination;
 
     public Parcel(Location dest)
     {

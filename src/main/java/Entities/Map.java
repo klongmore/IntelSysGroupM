@@ -1,6 +1,5 @@
 package Entities;
 
-import Program.Utilities;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -18,7 +17,6 @@ public class Map extends JPanel
     private ArrayList<Route> routes;
     private Location depot;
 
-    //Creates a new map and initialises the lists.
     public Map()
     {
         locations = new ArrayList<>();
@@ -26,7 +24,6 @@ public class Map extends JPanel
         routes = new ArrayList<>();
     }
 
-    //ReMaps the map with new list data.
     public void reMap(Map newMap)
     {
         locations = newMap.locations;
@@ -34,15 +31,11 @@ public class Map extends JPanel
         depot = newMap.depot;
     }
 
-<<<<<<< HEAD
 //    public ArrayList<Parcel> getParcels()
 //    {
 //        return parcels;
 //    }
 
-=======
-    //Adds a parcel to the parcels list, and creates a new location if a location doesn't already exist.
->>>>>>> ef1cbe1e59cef262aa4b801fd989a20de10636e5
     public void addParcel(int x, int y)
     {
         Location toAdd = null;
@@ -64,16 +57,12 @@ public class Map extends JPanel
         parcels.add(new Parcel(toAdd));
     }
 
-<<<<<<< HEAD
     public void setDepot(Location newDepot)
     {
         depot = newDepot;
     }
     public Location getDepot() { return depot; }
 
-=======
-    //Outputs the Map as a JSON object for saving.
->>>>>>> ef1cbe1e59cef262aa4b801fd989a20de10636e5
     public JSONObject mapJSON()
     {
         JSONArray parcelList = new JSONArray();
@@ -96,43 +85,20 @@ public class Map extends JPanel
         return mapJSON;
     }
 
-    //Locations getter and setter
     public ArrayList<Location> getLocations() { return locations; }
     public void setLocations(ArrayList<Location> locations) {
         this.locations = locations;
-    }
-
-    //Parcels getter and setter
-    public ArrayList<Parcel> getParcels()
-    {
-        return parcels;
     }
     public void setParcels(ArrayList<Parcel> parcels) {
         this.parcels = parcels;
     }
 
-    //Routes setter
-    public void setRoutes(ArrayList<Route> routes)
-    {
-        this.routes = routes;
-        Utilities.assignColours(this.routes);
-    }
-
-    //Depot setter
-    public void setDepot(Location newDepot)
-    {
-        depot = newDepot;
-    }
-
-    //Paint method for showing the map
     public void paint(Graphics g)
     {
-        //Super paint ensures that the border around the map is painted
         super.paint(g);
         this.setBackground(Color.WHITE);
 
-        //Scaling code to ensure that the map is appropriately scaled when the viewport size is changed.
-        if (!locations.isEmpty())
+        if(!locations.isEmpty())
         {
             Location MaxXLocation = null;
             Location MinXLocation = null;
@@ -143,34 +109,33 @@ public class Map extends JPanel
             ArrayList<Location> tempLocations = new ArrayList<>(locations);
             tempLocations.add(depot);
 
-            for (Location loc : tempLocations)
+            for(Location loc : tempLocations)
             {
-                if (MaxXLocation == null || MaxXLocation.getX() < loc.getX())
+                if(MaxXLocation == null || MaxXLocation.getX() < loc.getX())
                 {
                     MaxXLocation = loc;
                 }
 
-                if (MinXLocation == null || MinXLocation.getX() > loc.getX())
+                if(MinXLocation == null || MinXLocation.getX() > loc.getX())
                 {
                     MinXLocation = loc;
                 }
 
-                if (MaxYLocation == null || MaxYLocation.getY() < loc.getY())
+                if(MaxYLocation == null || MaxYLocation.getY() < loc.getY())
                 {
                     MaxYLocation = loc;
                 }
 
-                if (MinYLocation == null || MinYLocation.getY() > loc.getY())
+                if(MinYLocation == null || MinYLocation.getY() > loc.getY())
                 {
                     MinYLocation = loc;
                 }
             }
 
             int scaleOffset = 50;
-            float scaleX = ((float) getWidth() - scaleOffset * 2) / (MaxXLocation.getX() - MinXLocation.getX());
-            float scaleY = ((float) getHeight() - scaleOffset * 2) / (MaxYLocation.getY() - MinYLocation.getY());
+            float scaleX = ((float)getWidth() - scaleOffset * 2)/(MaxXLocation.getX() - MinXLocation.getX());
+            float scaleY = ((float)getHeight() - scaleOffset * 2)/(MaxYLocation.getY() - MinYLocation.getY());
 
-<<<<<<< HEAD
             // draw routes
             if(!routes.isEmpty())
             {
@@ -181,17 +146,10 @@ public class Map extends JPanel
             }
             // draw locations
             for(Location location : locations)
-=======
-            depot.setScaledX((int) (scaleX * (depot.getX() - MinXLocation.getX())) + scaleOffset);
-            depot.setScaledY((int) (scaleY * (depot.getY() - MinYLocation.getY())) + scaleOffset);
-            depot.paint(g);
-
-            //Draws the locations at their scaled locations.
-            for (Location location : locations)
->>>>>>> ef1cbe1e59cef262aa4b801fd989a20de10636e5
             {
-                location.setScaledX((int) (scaleX * (location.getX() - MinXLocation.getX())) + scaleOffset);
-                location.setScaledY((int) (scaleY * (location.getY() - MinYLocation.getY())) + scaleOffset);
+                g.setColor(Color.BLACK);
+                location.setScaledX((int)(scaleX * (location.getX() - MinXLocation.getX())) + scaleOffset);
+                location.setScaledY((int)(scaleY * (location.getY() - MinYLocation.getY())) + scaleOffset);
                 location.paint(g);
             }
 
@@ -202,7 +160,6 @@ public class Map extends JPanel
             depot.paint(g);
         }
     }
-<<<<<<< HEAD
 
     public void setRoutes(ArrayList<Route> routes) {
         this.routes = routes;
@@ -292,6 +249,4 @@ public class Map extends JPanel
 
         return closestLocation;
     }
-=======
->>>>>>> ef1cbe1e59cef262aa4b801fd989a20de10636e5
 }

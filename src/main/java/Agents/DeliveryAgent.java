@@ -15,8 +15,6 @@ import jadex.micro.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10"),
-//            @Argument(name="route",  description = "Delivery Agent route", clazz = Route.class)})
 @Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10")})
 @RequiredServices(@RequiredService(name="routeService", type= IMasterRoutingAgent.class,
         binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM)))

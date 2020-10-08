@@ -117,6 +117,8 @@
       <workItem from="1600219112301" duration="4668000" />
       <workItem from="1601511202068" duration="3877000" />
       <workItem from="1601518472657" duration="1794000" />
+      <workItem from="1602033380213" duration="448000" />
+      <workItem from="1602034058618" duration="2209000" />
     </task>
     <servers />
   </component>
@@ -159,8 +161,17 @@
     </state>
     <state x="757" y="373" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1602069204010" />
     <state x="1009" y="542" key="#com.intellij.ide.util.TreeClassChooserDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599016978100" />
+<<<<<<< HEAD
     <state x="610" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1601564731170">
       <screen x="0" y="0" width="1920" height="1040" />
+=======
+    <state x="960" y="476" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1602033738273">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state x="960" y="476" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602033738273" />
+    <state x="1031" y="154" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1599616270429">
+      <screen x="0" y="40" width="2560" height="1400" />
+>>>>>>> ef1cbe1e59cef262aa4b801fd989a20de10636e5
     </state>
     <state x="610" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1601564731170" />
     <state x="1031" y="154" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599616270429" />
@@ -177,6 +188,7 @@
     </state>
     <state x="795" y="328" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1602067543780" />
     <state x="1060" y="481" key="FileChooserDialogImpl/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598513872202" />
+<<<<<<< HEAD
     <state width="1876" height="265" key="GridCell.Tab.0.bottom" timestamp="1602104166859">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -199,6 +211,26 @@
     <state width="2517" height="310" key="GridCell.Tab.0.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1601520287520" />
     <state width="1876" height="342" key="GridCell.Tab.1.bottom" timestamp="1602103385906">
       <screen x="0" y="0" width="1920" height="1040" />
+=======
+    <state width="2517" height="310" key="GridCell.Tab.0.bottom" timestamp="1602036280376">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state width="2517" height="310" key="GridCell.Tab.0.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602036280376" />
+    <state width="2517" height="310" key="GridCell.Tab.0.center" timestamp="1602036280376">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state width="2517" height="310" key="GridCell.Tab.0.center/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602036280376" />
+    <state width="2517" height="310" key="GridCell.Tab.0.left" timestamp="1602036280376">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state width="2517" height="310" key="GridCell.Tab.0.left/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602036280376" />
+    <state width="2517" height="310" key="GridCell.Tab.0.right" timestamp="1602036280376">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state width="2517" height="310" key="GridCell.Tab.0.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602036280376" />
+    <state width="2517" height="484" key="GridCell.Tab.1.bottom" timestamp="1599707712724">
+      <screen x="0" y="40" width="2560" height="1400" />
+>>>>>>> ef1cbe1e59cef262aa4b801fd989a20de10636e5
     </state>
     <state width="1876" height="342" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1602103385906" />
     <state width="2517" height="484" key="GridCell.Tab.1.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599707712724" />
@@ -235,6 +267,7 @@
     </state>
     <state x="367" y="170" key="new project wizard/0.0.1920.1040@0.0.1920.1040" timestamp="1602067271749" />
     <state x="871" y="315" key="new project wizard/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598513877179" />
+<<<<<<< HEAD
     <state x="616" y="235" key="run.anything.popup" timestamp="1601532777143">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -244,6 +277,12 @@
     </state>
     <state x="707" y="234" width="672" height="504" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1601888827396" />
     <state x="943" y="355" width="672" height="678" key="search.everywhere.popup/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1601511296052" />
+=======
+    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup" timestamp="1602034402084">
+      <screen x="0" y="40" width="2560" height="1400" />
+    </state>
+    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602034402084" />
+>>>>>>> ef1cbe1e59cef262aa4b801fd989a20de10636e5
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

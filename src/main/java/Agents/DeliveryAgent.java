@@ -1,7 +1,6 @@
 package Agents;
 
 //A delivery agent with a capacity constraint. Communicates with the MasterRoutingAgent to be assigned a route.
-
 import Entities.Location;
 import Entities.Route;
 import Interfaces.IMasterRoutingAgent;
@@ -15,12 +14,8 @@ import jadex.micro.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10"),
-//            @Argument(name="route",  description = "Delivery Agent route", clazz = Route.class)})
 @Arguments({@Argument(name="capacity", description = "Delivery Agent parcel capacity", clazz = Integer.class, defaultvalue = "10")})
-@RequiredServices(@RequiredService(name="routeService", type= IMasterRoutingAgent.class,
-        binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM)))
-//@ProvidedServices(@ProvidedService(name="routeService", type= IMasterRoutingAgent.class, implementation=@Implementation(Agents.MasterRoutingAgent.class)))
+@RequiredServices(@RequiredService(name="routeService", type= IMasterRoutingAgent.class, binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM)))
 @Agent
 public class DeliveryAgent
 {
@@ -34,16 +29,18 @@ public class DeliveryAgent
     {
         System.out.println(agent.getComponentIdentifier().getLocalName() + " added, with capacity: " + capacity);
         IFuture<IMasterRoutingAgent> fut = requiredServicesFeature.getRequiredService("routeService");
-        fut.addResultListener(new DefaultResultListener<IMasterRoutingAgent>() {
+        fut.addResultListener(new DefaultResultListener<IMasterRoutingAgent>()
+        {
+            //Triggers when the MRA has a result for its calculateRoute method
             @Override
-            // triggers when the MRA has a result for its calculateRoute method
-            public void resultAvailable(IMasterRoutingAgent iMasterRoutingAgent) {
+            public void resultAvailable(IMasterRoutingAgent iMasterRoutingAgent)
+            {
                 iMasterRoutingAgent.calculateRoute(capacity)
                         .addResultListener(l -> getRoute(l));
             }
             public void exceptionOccurred(Exception e)
             {
-                System.out.println(e);
+                e.printStackTrace();
             }
         });
     }

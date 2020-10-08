@@ -31,11 +31,6 @@ public class Map extends JPanel
         depot = newMap.depot;
     }
 
-//    public ArrayList<Parcel> getParcels()
-//    {
-//        return parcels;
-//    }
-
     public void addParcel(int x, int y)
     {
         Location toAdd = null;
@@ -56,12 +51,6 @@ public class Map extends JPanel
         toAdd.addPackage();
         parcels.add(new Parcel(toAdd));
     }
-
-    public void setDepot(Location newDepot)
-    {
-        depot = newDepot;
-    }
-    public Location getDepot() { return depot; }
 
     public JSONObject mapJSON()
     {
@@ -92,6 +81,11 @@ public class Map extends JPanel
     public void setParcels(ArrayList<Parcel> parcels) {
         this.parcels = parcels;
     }
+    public void setDepot(Location newDepot)
+    {
+        depot = newDepot;
+    }
+    public Location getDepot() { return depot; }
 
     public void paint(Graphics g)
     {

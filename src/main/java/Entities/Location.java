@@ -29,7 +29,6 @@ public class Location
     public int getX() {
         return this.x;
     }
-
     public int getY() {
         return this.y;
     }
@@ -38,14 +37,12 @@ public class Location
     {
         scaledX = sX;
     }
+    public int getScaledX() { return scaledX; }
 
     public void setScaledY(int sY)
     {
         scaledY = sY;
     }
-
-    public int getScaledX() { return scaledX; }
-
     public int getScaledY() { return scaledY; }
 
     public Integer getNumPackages() { return numPackages; }

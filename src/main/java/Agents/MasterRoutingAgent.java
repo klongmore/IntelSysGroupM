@@ -36,21 +36,19 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
     JFrame GUI;
 
     @AgentBody
-    public void body(IInternalAccess agent) {
+    public void body(IInternalAccess agent)
+    {
         System.out.println(agent.getComponentIdentifier().getLocalName() + " added.");
 
         // INIT LOCAL VARIABLES
-        Utilities utilities = new Utilities();
         GUI = new JFrame("Vehicle Routing Problem");
         JMenuBar menuBar = new JMenuBar();
         JMenu mapMenu = new JMenu("Map");
         control = new Control();
         map = new Map();
 
-        // generate routes - test
+        //Generate a random specification.
         map.reMap(Utilities.generateSpecification(20));
-//        map.generateTestRoute();
-//        map.generateRandomRoute(4);
 
         // GUI MENU
         menuBar.add(mapMenu);
@@ -58,6 +56,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         GUI.setSize(860, 640);
         GUI.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
+
         // control panel
         c.gridx = 0;
         c.gridy = 0;
@@ -80,6 +79,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         control.add(capacitySpinner);
         control.add(addButton);
         GUI.add(control, c);
+
         // map panel
         c.gridx = 1;
         c.gridwidth = 3;
@@ -96,7 +96,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         // nearest neighbour
         map.setRoutes(new ArrayList<>());
         map.resetLocationGroups();
-        Location depot = map.getDepot();
+
         // finding furthest distance
         double thresholdDistance = map.getFurthestDistance(map.getDepot(), map.getLocations()) / 2.5;
 
@@ -126,6 +126,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
             locationGroups.add(new ArrayList<>(group));
             group.clear();
         }
+
         // generate routes from the determined groups
         for(ArrayList<Location> g : locationGroups)
         {
@@ -148,11 +149,13 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
     }
 
     @Override
-    public IFuture<List<Integer[]>> calculateRoute(int capacity) {
+    public IFuture<List<Integer[]>> calculateRoute(int capacity)
+    {
         numDeliveryAgents++;
         updateMap(capacity);
         Future<List<Integer[]>> result = new Future<>();
         List<Integer[]> list = new ArrayList<>();
+
         // creates a list of integer arrays, index 0 = x value, index 1 = y value for location generation.
         for(int i = 1; i < 11; i++)
         {

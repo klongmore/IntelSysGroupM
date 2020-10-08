@@ -39,7 +39,7 @@ public class Utilities
             Color.web("0x93AA00"),
             Color.web("0x593315"),
             Color.web("0xF13A13"),
-            Color.web("0x232C16"),
+            Color.web("0x232C16")
     };
 
     public static Map readSpecification(File spec)
@@ -92,10 +92,9 @@ public class Utilities
             }
         }
 
-//        int posX = rand.nextInt(500);
-//        int posY = rand.nextInt(500);
-//        Location depot = new Location(posX, posY);
-        Location depot = new Location(250, 250);
+        int posX = rand.nextInt(500);
+        int posY = rand.nextInt(500);
+        Location depot = new Location(posX, posY);
         depot.makeDepot();
         result.setDepot(depot);
 

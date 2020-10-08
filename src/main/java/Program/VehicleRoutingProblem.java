@@ -1,10 +1,6 @@
 package Program;
 
-import Agents.DeliveryAgent;
 import Agents.MasterRoutingAgent;
-import Entities.Control;
-import Entities.Location;
-import Entities.Map;
 import jadex.base.PlatformConfiguration;
 import jadex.base.Starter;
 import jadex.bridge.IExternalAccess;
@@ -13,24 +9,16 @@ import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.SUtil;
 
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Random;
-
-//Runs the VRP solution. Either constructs random locations given a number, or constructs locations given a file specification
-public class VehicleRoutingProblem //implements Runnable
+//Runs the VRP solution and sets up the Jadex platform.
+public class VehicleRoutingProblem
 {
     public static void main(String[] args)
     {
         PlatformConfiguration config = PlatformConfiguration.getMinimal();
         config.setGui(true);
         config.addComponent(MasterRoutingAgent.class);
-//        Starter.createPlatform(config).get();
         IExternalAccess platform = Starter.createPlatform(config).get();
         IComponentManagementService cms = SServiceProvider.getService(platform, IComponentManagementService.class).get();
-//        SwingUtilities.invokeLater(new VehicleRoutingProblem());
         CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{120}));
         cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci);
     }

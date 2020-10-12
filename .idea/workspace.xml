@@ -44,8 +44,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Interface" />
         <option value="Class" />
+        <option value="Interface" />
       </list>
     </option>
   </component>
@@ -55,7 +55,7 @@
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
-        <option name="mavenHome" value="C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2020.2.1\plugins\maven\lib\maven3" />
+        <option name="mavenHome" value="D:\IntelliJ IDEA 2018.2.4\plugins\maven\lib\maven3" />
       </MavenGeneralSettings>
     </option>
   </component>
@@ -81,6 +81,13 @@
     </key>
   </component>
   <component name="RunManager">
+    <configuration name="VRP" type="Application" factoryName="Application" singleton="false">
+      <option name="MAIN_CLASS_NAME" value="Program.VehicleRoutingProblem" />
+      <module name="IntelSysGroupM" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
       <option name="arquillianRunConfiguration">
         <value>
@@ -88,13 +95,6 @@
         </value>
       </option>
       <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="VRP" type="Application" factoryName="Application" singleton="false">
-      <option name="MAIN_CLASS_NAME" value="Program.VehicleRoutingProblem" />
-      <module name="IntelSysGroupM" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -126,6 +126,8 @@
       <workItem from="1601511202068" duration="3877000" />
       <workItem from="1601518472657" duration="1794000" />
       <workItem from="1602119202179" duration="5062000" />
+      <workItem from="1602471515750" duration="590000" />
+      <workItem from="1602472720743" duration="2595000" />
     </task>
     <servers />
   </component>
@@ -159,10 +161,11 @@
     </state>
     <state x="551" y="264" width="826" height="602" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1602069205425" />
     <state x="734" y="395" width="1092" height="714" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1600218836810" />
-    <state x="765" y="220" key="#com.intellij.ide.util.MemberChooser" timestamp="1602184301171">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="1020" y="336" key="#com.intellij.ide.util.MemberChooser" timestamp="1602477026327">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state x="765" y="220" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1602184301171" />
+    <state x="1020" y="336" key="#com.intellij.ide.util.MemberChooser/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602477026327" />
     <state x="757" y="373" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1602069204010">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -173,10 +176,11 @@
     </state>
     <state x="610" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1601564731170" />
     <state x="1031" y="154" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599616270429" />
-    <state x="690" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1601539286497">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="920" y="398" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1602478192355">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state x="690" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1601539286497" />
+    <state x="920" y="398" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602478192355" />
     <state x="881" y="272" key="#xdebugger.XInspectDialog" timestamp="1601894070332">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -186,26 +190,26 @@
     </state>
     <state x="795" y="328" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1602067543780" />
     <state x="1060" y="481" key="FileChooserDialogImpl/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598513872202" />
-    <state width="1876" height="265" key="GridCell.Tab.0.bottom" timestamp="1602185131469">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="2517" height="310" key="GridCell.Tab.0.bottom" timestamp="1602478382262">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="265" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1602185131469" />
-    <state width="2517" height="310" key="GridCell.Tab.0.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602124333153" />
-    <state width="1876" height="265" key="GridCell.Tab.0.center" timestamp="1602185131468">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="2517" height="310" key="GridCell.Tab.0.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602478382262" />
+    <state width="2517" height="310" key="GridCell.Tab.0.center" timestamp="1602478382262">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="265" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1602185131468" />
-    <state width="2517" height="310" key="GridCell.Tab.0.center/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602124333153" />
-    <state width="1876" height="265" key="GridCell.Tab.0.left" timestamp="1602185131468">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="2517" height="310" key="GridCell.Tab.0.center/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602478382262" />
+    <state width="2517" height="310" key="GridCell.Tab.0.left" timestamp="1602478382262">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="265" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1602185131468" />
-    <state width="2517" height="310" key="GridCell.Tab.0.left/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602124333153" />
-    <state width="1876" height="265" key="GridCell.Tab.0.right" timestamp="1602185131469">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="2517" height="310" key="GridCell.Tab.0.left/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602478382262" />
+    <state width="2517" height="310" key="GridCell.Tab.0.right" timestamp="1602478382262">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="265" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1602185131469" />
-    <state width="2517" height="310" key="GridCell.Tab.0.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602124333153" />
+    <state width="2517" height="310" key="GridCell.Tab.0.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602478382262" />
     <state width="1876" height="342" key="GridCell.Tab.1.bottom" timestamp="1602182362770">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -248,11 +252,11 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="616" y="235" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1601532777143" />
-    <state x="707" y="234" width="672" height="504" key="search.everywhere.popup" timestamp="1601888827396">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup" timestamp="1602476808327">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state x="707" y="234" width="672" height="504" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1601888827396" />
-    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1601511296052" />
+    <state x="943" y="355" width="672" height="678" key="search.everywhere.popup/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602476808327" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

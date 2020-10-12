@@ -89,6 +89,7 @@ public class Map extends JPanel
 
     public void paint(Graphics g)
     {
+        setBorder(BorderFactory.createTitledBorder("Map"));
         super.paint(g);
         this.setBackground(Color.WHITE);
 

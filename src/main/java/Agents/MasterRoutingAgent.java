@@ -2,14 +2,20 @@ package Agents;
 
 //Takes constraints from the DeliveryAgents and uses an algorithm to determine the routes.
 
-import Entities.DeliveryAgent;
 import Entities.Location;
 import Entities.Map;
 import Entities.Route;
 import Interfaces.IDeliveryAgent;
 import Program.Utilities;
+import jadex.base.PlatformConfiguration;
+import jadex.base.Starter;
+import jadex.bridge.IExternalAccess;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
+import jadex.bridge.service.component.IRequiredServicesFeature;
+import jadex.bridge.service.search.SServiceProvider;
+import jadex.bridge.service.types.cms.IComponentManagementService;
+import jadex.commons.future.ITerminableIntermediateFuture;
 import jadex.micro.annotation.*;
 
 import javax.swing.*;
@@ -22,8 +28,17 @@ import java.util.ArrayList;
 @Agent
 public class MasterRoutingAgent
 {
+    //GUI Variables
     private Map map;
     private JFrame GUI;
+
+    //JADEX Variables
+    PlatformConfiguration config = PlatformConfiguration.getMinimal();
+    IExternalAccess platform = Starter.createPlatform(config).get();
+    IComponentManagementService cms = SServiceProvider.getService(platform, IComponentManagementService.class).get();
+
+    @AgentFeature
+    IRequiredServicesFeature requiredServicesFeature;
 
     @AgentBody
     public void body(IInternalAccess agent)
@@ -103,6 +118,11 @@ public class MasterRoutingAgent
         JSpinner capacitySpinner = new JSpinner(spinnerModel);
 
         JButton addButton = new JButton("Add Agent");
+        addButton.addActionListener(e->
+        {
+
+        });
+
         control.add(capacitySpinner);
         control.add(addButton);
 
@@ -131,48 +151,95 @@ public class MasterRoutingAgent
         GUI.add(map, c);
         GUI.setVisible(true);
         GUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        runAlgorithm("GNN", agent);
     }
 
-    private void runAlgorithm(String toRun)
+    //Runs an algorithm and assigns routes.
+    private void runAlgorithm(String toRun, IInternalAccess agent)
     {
-        //TODO: Get all agent capacities into a list
-        ArrayList<Route> result;
-        switch (toRun)
+        //Get all agent capacities in a list
+        ArrayList<Integer> capacities = new ArrayList<>();
+        int capacityTotal = 0;
+        ITerminableIntermediateFuture<Object> fut = requiredServicesFeature.getRequiredServices("deliveryAgentService");
+        for(Object deliveryAgent : fut.get().toArray())
         {
-            case "GNN":
-                result = doGNN();
-                break;
-            case "GA":
-                result = doGA();
-                break;
-            case "ACO":
-                result = doACO();
-                break;
+            IDeliveryAgent toGet = (IDeliveryAgent)deliveryAgent;
+            capacities.add(toGet.getCapacity().get());
+            capacityTotal += toGet.getCapacity().get();
         }
 
-        //TODO: Assign routes to agents from result
+        if(map.getParcels().size() > capacityTotal)
+        {
+            JOptionPane.showConfirmDialog(GUI, "Too many parcels to deliver, please add more agents.", "Capacity Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+        }
+        else
+        {
+            ArrayList<Route> result;
+            switch (toRun)
+            {
+                case "GNN":
+                    result = doGNN(capacities);
+                    break;
+                case "GA":
+                    result = doGA(capacities);
+                    break;
+                case "ACO":
+                    result = doACO(capacities);
+                    break;
+                default:
+                    result = new ArrayList<>();
+                    break;
+            }
+
+            assignRoutes(result);
+        }
     }
 
-    private ArrayList<Route> doACO()
+    //Assigns computed routes to agents.
+    private void assignRoutes(ArrayList<Route> routes)
     {
-
+        //Assign agents with a route as close to their capacity as possible.
+        for (Object da : requiredServicesFeature.getRequiredServices("deliveryAgentService").get().toArray())
+        {
+            IDeliveryAgent d = (IDeliveryAgent) da;
+            Route bestRoute = new Route(new ArrayList<>());
+            for (Route r : routes)
+            {
+                if (r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity().get() && !r.isAssigned())
+                {
+                    bestRoute = r;
+                    r.assigned();
+                }
+            }
+            //d.setRoute(bestRoute);
+            map.addRoute(bestRoute);
+        }
     }
 
-    private ArrayList<Route> doGA()
+    private ArrayList<Route> doACO(ArrayList<Integer> capacities)
     {
-
+        ArrayList<Route> routes = new ArrayList<>();
+        return routes;
     }
 
-    private ArrayList<Route> doGNN()
+    private ArrayList<Route> doGA(ArrayList<Integer> capacities)
     {
-        // nearest neighbour
-        map.setRoutes(new ArrayList<>());
-        map.resetLocationGroups();
+        ArrayList<Route> routes = new ArrayList<>();
+        return routes;
+    }
 
-        // finding furthest distance
-        double thresholdDistance = map.getFurthestDistance(map.getDepot(), map.getLocations()) / 2.5;
+    private ArrayList<Route> doGNN(ArrayList<Integer> capacities)
+    {
+        System.out.println("Doing GNN");
 
-        // determine location groups
+        //Reset the current grouping of the map
+        map.resetRoutes();
+
+        //Find the distance between the depot and the furthest location.
+        double thresholdDistance = Utilities.getFurthestDistance(map.getDepot(), map.getLocations()) / 2.5;
+
+        //Determine groups of locations.
         ArrayList<ArrayList<Location>> locationGroups = new ArrayList<>();
         ArrayList<Location> group = new ArrayList<>();
         for (Location l : map.getLocations())
@@ -185,7 +252,7 @@ public class MasterRoutingAgent
                 {
                     if (!j.isGrouped())
                     {
-                        // if the iterated location is within distance and not yet grouped, group it
+                        //If the iterated location is within distance and not yet grouped, group it
                         double distance = Math.hypot(l.getX() - j.getX(), l.getY() - j.getY());
                         if (distance < thresholdDistance)
                         {
@@ -199,43 +266,30 @@ public class MasterRoutingAgent
             group.clear();
         }
 
-        // generate routes from the determined groups
+        System.out.println(locationGroups.size());
+
+        //Generate routes from the determined groups
         ArrayList<Route> computedRoutes = new ArrayList<>();
         for (ArrayList<Location> g : locationGroups)
         {
-            // connect the next closest location to the previous
+            //Connect the next closest location to the previous
             Location closest = map.getDepot();
             ArrayList<Location> newList = new ArrayList<>();
             ArrayList<Location> refList = new ArrayList<>(g);
             for (int i = 0; i < g.size(); i++)
             {
-                Location nextClosest = map.getClosestLocation(closest, refList);
+                Location nextClosest = Utilities.getClosestLocation(closest, refList);
                 newList.add(nextClosest);
                 closest = nextClosest;
                 refList.remove(closest);
             }
-            // set depot as first and last locations in route
+
+            //Set depot as first and last locations in route
             newList.add(0, map.getDepot());
             newList.add(map.getDepot());
-//            map.addRoute(new Route(newList));
             computedRoutes.add((new Route(newList)));
         }
-
-        // assign agents with a route as close to their capacity as possible.
-        for (DeliveryAgent d : deliveryAgents)
-        {
-            Route bestRoute = new Route(new ArrayList<>());
-            for (Route r : computedRoutes)
-            {
-                if (r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity()
-                        && r.isAssigned() == false)
-                {
-                    bestRoute = r;
-                    r.assigned();
-                }
-            }
-            d.setRoute(bestRoute);
-            map.addRoute(d.getRoute());
-        }
+        System.out.println(computedRoutes.size());
+        return computedRoutes;
     }
 }

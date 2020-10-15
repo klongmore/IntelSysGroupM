@@ -23,7 +23,30 @@ public class Route
             this.stops.add(l);
             this.numParcels += l.getNumPackages();
         }
-//        System.out.println(this.stops.size());
+    }
+
+    public ArrayList<Location> getStops()
+    {
+        return this.stops;
+    }
+
+    public void setStops(ArrayList<Location> locations)
+    {
+        this.stops = locations;
+    }
+
+    public int getNumParcels() {
+        return numParcels;
+    }
+
+    public void assigned()
+    {
+        assigned = true;
+    }
+
+    public boolean isAssigned()
+    {
+        return assigned;
     }
 
 //    public void setColor(javafx.scene.paint.Color newColor)
@@ -46,29 +69,5 @@ public class Route
                 prevStop = l;
             }
         }
-    }
-
-    public ArrayList<Location> getStops()
-    {
-        return this.stops;
-    }
-
-    public void setStops(ArrayList<Location> locations)
-    {
-        this.stops = locations;
-    }
-
-    public int getNumParcels() {
-        return numParcels;
-    }
-
-    public void assigned()
-    {
-        this.assigned = true;
-    }
-
-    public boolean isAssigned()
-    {
-        return this.assigned;
     }
 }

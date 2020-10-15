@@ -12,11 +12,13 @@ import java.util.Random;
 //JPanel to represent the routes and locations.
 public class Map extends JPanel
 {
+    //Instance variables
     private ArrayList<Location> locations;
     private ArrayList<Parcel> parcels;
     private ArrayList<Route> routes;
     private Location depot;
 
+    //Initialise Map variables.
     public Map()
     {
         locations = new ArrayList<>();
@@ -24,6 +26,7 @@ public class Map extends JPanel
         routes = new ArrayList<>();
     }
 
+    //Remaps the map to a new configuration.
     public void reMap(Map newMap)
     {
         locations = newMap.locations;
@@ -31,6 +34,7 @@ public class Map extends JPanel
         depot = newMap.depot;
     }
 
+    //Adds a parcel, and either adds a location or changes an existing location.
     public void addParcel(int x, int y)
     {
         Location toAdd = null;
@@ -52,6 +56,7 @@ public class Map extends JPanel
         parcels.add(new Parcel(toAdd));
     }
 
+    //Outputs the Map in JSON format for saving.
     public JSONObject mapJSON()
     {
         JSONArray parcelList = new JSONArray();
@@ -74,18 +79,29 @@ public class Map extends JPanel
         return mapJSON;
     }
 
+    public void setLocations(ArrayList<Location> newLocations) {
+        locations = newLocations;
+    }
     public ArrayList<Location> getLocations() { return locations; }
-    public void setLocations(ArrayList<Location> locations) {
-        this.locations = locations;
+
+    public void setParcels(ArrayList<Parcel> newParcels) {
+        parcels = newParcels;
     }
-    public void setParcels(ArrayList<Parcel> parcels) {
-        this.parcels = parcels;
-    }
+    public ArrayList<Parcel> getParcels(){return parcels;}
+
     public void setDepot(Location newDepot)
     {
         depot = newDepot;
     }
     public Location getDepot() { return depot; }
+
+    public void setRoutes(ArrayList<Route> newRoutes) {
+        routes = newRoutes;
+    }
+    public void addRoute(Route r)
+    {
+        routes.add(r);
+    }
 
     public void paint(Graphics g)
     {
@@ -156,92 +172,13 @@ public class Map extends JPanel
         }
     }
 
-    public void setRoutes(ArrayList<Route> routes) {
-        this.routes = routes;
-    }
-
-    public void addRoute(Route r)
-    {
-        this.routes.add(r);
-    }
-
-    public void generateTestRoute()
-    {
-        Random rand = new Random();
-        ArrayList<Location> refLocations = new ArrayList<>(locations);
-        ArrayList<Location> rLocations = new ArrayList<>();
-        rLocations.add(depot);
-        Location rLocation;
-        while(!refLocations.isEmpty())
-        {
-            rLocation = refLocations.get(rand.nextInt(refLocations.size()));
-            if(!rLocation.visited())
-            {
-                rLocation.visit();
-                rLocations.add(rLocation);
-                refLocations.remove(rLocation);
-            }
-        }
-        routes.add(new Route(rLocations));
-    }
-
-    public void generateRandomRoute(int n)
-    {
-        Random rand = new Random();
-        ArrayList<Location> rLocations = new ArrayList<>();
-        rLocations.add(depot);
-        Location rLocation;
-        while(rLocations.size() < n + 1)
-        {
-            rLocation = locations.get(rand.nextInt(locations.size()));
-            if(!rLocation.visited())
-            {
-                rLocation.visit();
-                rLocations.add(rLocation);
-            }
-        }
-        rLocations.add(depot);
-        routes.add(new Route(rLocations));
-    }
-
-    public void resetLocationGroups()
+    public void resetRoutes()
     {
         for(Location l : locations)
         {
             l.ungroup();
         }
-    }
 
-    public double getFurthestDistance(Location refLocation, ArrayList<Location> list)
-    {
-        double distance;
-        double furthestDistance = 0;
-        for(Location l : list)
-        {
-            distance = Math.hypot(refLocation.getX() - l.getX(), refLocation.getY() - l.getY());
-            if(distance > furthestDistance)
-            {
-                furthestDistance = distance;
-            }
-        }
-        return furthestDistance;
-    }
-
-    public Location getClosestLocation(Location refLocation, ArrayList<Location> list)
-    {
-        double distance;
-        double closestDistance = 99999;
-        Location closestLocation = list.get(0);
-        for(Location l : list)
-        {
-            distance = Math.hypot(refLocation.getX() - l.getX(), refLocation.getY() - l.getY());
-            if(distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestLocation = l;
-            }
-        }
-
-        return closestLocation;
+        routes = new ArrayList<>();
     }
 }

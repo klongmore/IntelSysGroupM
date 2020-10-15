@@ -12,13 +12,12 @@ public class Location
     private final int height = 20;
     private Integer numPackages = 0;
     private boolean isDepot = false;
-    private boolean visited = false;
     private boolean grouped = false;
 
     public Location(int X, int Y)
     {
-        this.x = X;
-        this.y = Y;
+        x = X;
+        y = Y;
     }
 
     public void addPackage()
@@ -27,10 +26,10 @@ public class Location
     }
 
     public int getX() {
-        return this.x;
+        return x;
     }
     public int getY() {
-        return this.y;
+        return y;
     }
 
     public void setScaledX(int sX)
@@ -47,15 +46,11 @@ public class Location
 
     public Integer getNumPackages() { return numPackages; }
 
-    public boolean visited() { return visited; }
-
-    public void visit() { visited = true; }
-
     public boolean isGrouped() { return grouped; }
 
-    public void group() { this.grouped = true; }
+    public void group() { grouped = true; }
 
-    public void ungroup() { this.grouped = false; }
+    public void ungroup() { grouped = false; }
 
     public void makeDepot()
     {
@@ -71,18 +66,5 @@ public class Location
             g.setColor(Color.WHITE);
             g.drawString(numPackages.toString(), scaledX - width/6, scaledY + height/3);
         }
-    }
-
-    public static Comparator<Location> createComparator(Location l)
-    {
-        final Location lFinal = new Location(l.getX(), l.getY());
-        return new Comparator<Location>() {
-            @Override
-            public int compare(Location l1, Location l2) {
-                double ds1 = Math.hypot(l1.getX() - lFinal.getX(), l1.getY() - lFinal.getY());
-                double ds2 = Math.hypot(l2.getX() - lFinal.getX(), l2.getY() - lFinal.getY());
-                return Double.compare(ds1, ds2);
-            }
-        };
     }
 }

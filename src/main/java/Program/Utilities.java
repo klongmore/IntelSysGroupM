@@ -1,12 +1,9 @@
 package Program;
 
-import Agents.DeliveryAgent;
 import Entities.Location;
 import Entities.Map;
-import Entities.Parcel;
 import Entities.Route;
 import javafx.scene.paint.Color;
-import org.chocosolver.solver.constraints.nary.nValue.amnv.rules.R;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -41,6 +38,39 @@ public class Utilities
             Color.web("0xF13A13"),
             Color.web("0x232C16")
     };
+
+    public static double getFurthestDistance(Location refLocation, ArrayList<Location> list)
+    {
+        double distance;
+        double furthestDistance = 0;
+        for(Location l : list)
+        {
+            distance = Math.hypot(refLocation.getX() - l.getX(), refLocation.getY() - l.getY());
+            if(distance > furthestDistance)
+            {
+                furthestDistance = distance;
+            }
+        }
+        return furthestDistance;
+    }
+
+    public static Location getClosestLocation(Location refLocation, ArrayList<Location> list)
+    {
+        double distance;
+        double closestDistance = 99999;
+        Location closestLocation = list.get(0);
+        for(Location l : list)
+        {
+            distance = Math.hypot(refLocation.getX() - l.getX(), refLocation.getY() - l.getY());
+            if(distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestLocation = l;
+            }
+        }
+
+        return closestLocation;
+    }
 
     public static Map readSpecification(File spec)
     {

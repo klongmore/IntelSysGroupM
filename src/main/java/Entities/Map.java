@@ -75,6 +75,21 @@ public class Map extends JPanel
     }
 
     public ArrayList<Location> getLocations() { return locations; }
+
+    public ArrayList<Location> getUnassignedLocations()
+    {
+        ArrayList<Location> result = new ArrayList<>();
+        for(Location location : this.locations)
+        {
+            if(!location.visited())
+            {
+                result.add(location);
+            }
+        }
+
+        return result;
+    }
+
     public void setLocations(ArrayList<Location> locations) {
         this.locations = locations;
     }

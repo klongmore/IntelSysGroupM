@@ -25,6 +25,18 @@ public class DeliveryAgent {
         return route;
     }
 
+    public boolean hasRoute()
+    {
+        if(this.route != null && this.route.getStops().size() > 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public void setRoute(Route route) {
         this.route = route;
         if(route.getNumParcels() > 0)

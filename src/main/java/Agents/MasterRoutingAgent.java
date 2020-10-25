@@ -25,8 +25,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 // TODO: add agent argument for algorithm type which will then determine the route calculation.
+@Arguments({@Argument(name="algorithm", description = "Integer value indicating algorithm to run", clazz = Integer.class, defaultvalue = "2")})
 @ProvidedServices(@ProvidedService(name = "masterRoutingService", type= IMasterRoutingAgent.class))
 @Agent
 public class MasterRoutingAgent implements IMasterRoutingAgent
@@ -35,6 +37,8 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
     private Map map;
     private JFrame GUI;
     private ArrayList<DeliveryAgent> deliveryAgents;
+    @AgentArgument
+    int algorithm;
 
     @AgentBody
     public void body(IInternalAccess agent)
@@ -96,77 +100,242 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
 
     private void update()
     {
-        // nearest neighbour
-        map.setRoutes(new ArrayList<>());
-        map.resetLocationGroups();
-
-        // finding furthest distance
-        double thresholdDistance = map.getFurthestDistance(map.getDepot(), map.getLocations()) / 2.5;
-
-        // determine location groups
-        ArrayList<ArrayList<Location>> locationGroups = new ArrayList<>();
-        ArrayList<Location> group = new ArrayList<>();
-        for(Location l : map.getLocations())
+        // Grouped Nearest Neighbour (GNN)
+        if(algorithm == 1)
         {
-            if(!l.isGrouped())
+            // nearest neighbour
+            map.setRoutes(new ArrayList<>());
+            map.resetLocationGroups();
+            // find lowest delivery agent capacity
+            int lCapacity = deliveryAgents.get(0).getCapacity();
+            for (DeliveryAgent d : deliveryAgents)
             {
-                l.group();
-                group.add(l);
-                for(Location j : map.getLocations())
+                if(d.getCapacity() < lCapacity)
                 {
-                    if(!j.isGrouped())
+                    lCapacity = d.getCapacity();
+                }
+            }
+            // finding furthest distance
+            double thresholdDistance = map.getFurthestDistance(map.getDepot(), map.getUnassignedLocations()) / 2.5;
+
+            // determine location groups
+            ArrayList<ArrayList<Location>> locationGroups = new ArrayList<>();
+            ArrayList<Location> group = new ArrayList<>();
+            for(Location l : map.getUnassignedLocations())
+            {
+                if(!l.isGrouped())
+                {
+                    l.group();
+                    group.add(l);
+                    for(Location j : map.getUnassignedLocations())
                     {
-                        // if the iterated location is within distance and not yet grouped, group it
-                        double distance = Math.hypot(l.getX() - j.getX(), l.getY() - j.getY());
-                        if(distance < thresholdDistance)
+                        if(!j.isGrouped())
                         {
-                            j.group();
-                            group.add(j);
+                            // if the iterated location is within distance and not yet grouped, group it
+                            double distance = Math.hypot(l.getX() - j.getX(), l.getY() - j.getY());
+                            if(distance < thresholdDistance)
+                            {
+                                j.group();
+                                group.add(j);
+                            }
                         }
                     }
                 }
+                locationGroups.add(new ArrayList<>(group));
+                group.clear();
             }
-            locationGroups.add(new ArrayList<>(group));
-            group.clear();
-        }
 
-        // generate routes from the determined groups
-        ArrayList<Route> computedRoutes = new ArrayList<>();
-        for(ArrayList<Location> g : locationGroups)
-        {
-            // connect the next closest location to the previous
-            Location closest = map.getDepot();
-            ArrayList<Location> newList = new ArrayList<>();
-            ArrayList<Location> refList = new ArrayList<>(g);
-            for(int i = 0; i < g.size(); i++)
+            // generate routes from the determined groups
+            ArrayList<Route> computedRoutes = new ArrayList<>();
+            for(ArrayList<Location> g : locationGroups)
             {
-                Location nextClosest = map.getClosestLocation(closest, refList);
-                newList.add(nextClosest);
-                closest = nextClosest;
-                refList.remove(closest);
-            }
-            // set depot as first and last locations in route
-            newList.add(0, map.getDepot());
-            newList.add(map.getDepot());
-//            map.addRoute(new Route(newList));
-            computedRoutes.add((new Route(newList)));
-        }
-
-        // assign agents with a route as close to their capacity as possible.
-        for(DeliveryAgent d : deliveryAgents)
-        {
-            Route bestRoute = new Route(new ArrayList<>());
-            for(Route r : computedRoutes)
-            {
-                if(r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity()
-                    && r.isAssigned() == false)
+                // init depot as first location in route and thus the current closest location
+                Location closest = map.getDepot();
+                ArrayList<Location> newList = new ArrayList<>();
+                // refList contains a copy of the current location group, but locations are...
+                //      ...removed after they are determined to be the next closest.
+                ArrayList<Location> refList = new ArrayList<>(g);
+                for(int i = 0; i < g.size(); i++)
                 {
-                    bestRoute = r;
-                    r.assigned();
+                    // keep track of capacity so that it doesn't exceed lowest delivery agent capacity
+                    int tCapacity = 0;
+                    // find next closest from the remaining locations in the refList
+                    Location nextClosest = map.getClosestLocation(closest, refList);
+                    if(tCapacity + nextClosest.getNumPackages() <= lCapacity)
+                    {
+                        tCapacity += nextClosest.getNumPackages();
+                        // connect the next closest location to the previous
+                        newList.add(nextClosest);
+                        closest = nextClosest;
+                        // remove new closest location from refList location pool
+                        refList.remove(closest);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                // set depot as last locations in route
+                newList.add(0, map.getDepot());
+                newList.add(map.getDepot());
+                computedRoutes.add((new Route(newList)));
+            }
+            // assign routes
+            for(DeliveryAgent d : deliveryAgents)
+            {
+                Route bestRoute = new Route(new ArrayList<>());
+                for(Route r : computedRoutes)
+                {
+                    if(r.getNumParcels() > bestRoute.getNumParcels() &&
+                            !r.isAssigned())
+                    {
+                        bestRoute = r;
+                    }
+                }
+                if(bestRoute.getLength() > 0)
+                {
+                    d.setRoute(bestRoute);
+                    bestRoute.assigned();
+                    map.addRoute(d.getRoute());
                 }
             }
-            d.setRoute(bestRoute);
-            map.addRoute(d.getRoute());
+        }
+        // Evolutionary Algorithm
+        else if(algorithm == 2)
+        {
+            // algorithm is run once per agent to find most optimal available route
+            for(DeliveryAgent d : deliveryAgents)
+            {
+                if(!d.hasRoute())
+                {
+                    // variable 'r' is our iteration count, initially the below value
+                    int r = map.getLocations().size()^2;
+                    // currently testing with 1000 iterations
+                    r = 1000;
+                    // store current agent capacity as the package limit
+                    int dCapacity = d.getCapacity();
+                    // the population stores the evolving routes over the course of the algorithm's life cycle
+                    ArrayList<Route> population = new ArrayList<>();
+                    // generate 30 random routes with package counts equal to the lowest delivery agent capacity
+                    for(int i = 1; i <= 30; i++)
+                    {
+                        // copy of map locations to act as pool of random locations to choose from
+                        ArrayList<Location> mLocations = new ArrayList<>(map.getUnassignedLocations());
+                        // new locations consisting of randomly selected locations
+                        ArrayList<Location> nLocations = new ArrayList<>();
+                        // temporary capacity variable to make sure lCapacity is not exceeded
+                        int tCapacity = 0;
+                        Random rand = new Random();
+                        while(tCapacity < dCapacity)
+                        {
+                            Location rLoc = mLocations.get(rand.nextInt(mLocations.size()));
+                            // if the randomly selected location's package count doesn't exceed the current capacity count,
+                            // add it to the new list, remove it from the random pool, and increase capacity count accordingly.
+                            if(tCapacity + rLoc.getNumPackages() <= dCapacity && !nLocations.contains(rLoc))
+                            {
+                                nLocations.add(rLoc);
+                                mLocations.remove(rLoc);
+                                tCapacity += rLoc.getNumPackages();
+                            }
+                            // check if there are any other possible locations to add, if not, break loop
+                            boolean more = false;
+                            for(Location l : mLocations)
+                            {
+                                if (tCapacity + l.getNumPackages() <= dCapacity && !nLocations.contains(l)) {
+                                    more = true;
+                                    break;
+                                }
+                            }
+                            if(!more)
+                            {
+                                break;
+                            }
+                        }
+                        // add newly generated route to population
+                        population.add(new Route(nLocations));
+                    }
+                    // begin main loop
+                    for(int i = 0; i < r; i++)
+                    {
+                        // evaluate population of routes and remove the worst 10 according to distance (longest)
+                        for(int j = 0; j < 10; j++)
+                        {
+                            // find longest route
+                            Route lRoute = population.get(0);
+                            for(Route route : population)
+                            {
+                                if(route.getLength() > lRoute.getLength())
+                                {
+                                    lRoute = route;
+                                }
+                            }
+                            // remove longest route from population
+                            population.remove(lRoute);
+                        }
+                        // nChildren stores the child routes to be added to the population
+                        ArrayList<Route> nChildren = new ArrayList<>();
+                        // randomly generate 10 child routes from parent route locations
+                        for (int j = 0; j < 10; j++) {
+                            Random rand = new Random();
+                            Route pRoute1;
+                            Route pRoute2;
+                            pRoute1 = population.get(rand.nextInt(population.size()));
+                            pRoute2 = population.get(rand.nextInt(population.size()));
+                            // pLocations represents the pool of possible parent locations
+                            ArrayList<Location> pLocations = new ArrayList<>();
+                            // combine possible parent locations together into pool pLocations
+                            pLocations.addAll(pRoute1.getStops());
+                            pLocations.addAll(pRoute2.getStops());
+                            // cLocations collects new locations for generating a new child route
+                            ArrayList<Location> cLocations = new ArrayList<>();
+                            while(cLocations.size() < pRoute1.getStops().size() ||
+                                    cLocations.size() < pRoute2.getStops().size())
+                            {
+                                Location rLoc = pLocations.get(rand.nextInt(pLocations.size()));
+                                if(!cLocations.contains(rLoc))
+                                {
+                                    cLocations.add(rLoc);
+                                }
+                            }
+                            nChildren.add(new Route(cLocations));
+                        }
+                        for(Route child : nChildren)
+                        {
+                            population.add(child);
+                        }
+                    }
+
+                    // finalise routes by adding depot and marking locations as visited
+                    for(Route route : population)
+                    {
+                        route.getStops().add(0, map.getDepot());
+                        route.getStops().add(route.getStops().size(), map.getDepot());
+                    }
+                    // find shortest (best) route
+                    Route sRoute = population.get(0);
+                    for(Route route : population)
+                    {
+                        if(route.getLength() < sRoute.getLength())
+                        {
+                            sRoute = route;
+                        }
+                    }
+                    // mark route as assigned
+                    sRoute.assigned();
+                    // mark locations as visited so that they are not considered in future calculations
+                    for(Location l : sRoute.getStops())
+                    {
+                        l.visit();
+                    }
+                    d.setRoute(sRoute);
+                    map.addRoute(sRoute);
+                }
+            }
+        }
+        // Progressive Bee Colony Swarm Optimisation
+        else if (algorithm == 3)
+        {
+
         }
     }
 
@@ -179,10 +348,10 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         List<Integer[]> list = new ArrayList<>();
 
         // creates a list of integer arrays, index 0 = x value, index 1 = y value for location generation.
-        for(int i = 1; i < 11; i++)
-        {
-            list.add(new Integer[]{i, i});
-        }
+//        for(int i = 1; i < 11; i++)
+//        {
+//            list.add(new Integer[]{i, i});
+//        }
         result.setResult(list);
 
         // return route information to Delivery Agent

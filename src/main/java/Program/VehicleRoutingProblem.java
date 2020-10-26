@@ -14,7 +14,7 @@ public class VehicleRoutingProblem
 {
     public static void main(String[] args)
     {
-        int[] capacities = {5, 5, 5, 5};
+        int[] capacities = {10, 10, 10};
 //        int[] capacities = {20};
         PlatformConfiguration config = PlatformConfiguration.getMinimal();
         config.setGui(true);

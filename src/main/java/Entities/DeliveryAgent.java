@@ -42,7 +42,7 @@ public class DeliveryAgent {
         if(route.getNumParcels() > 0)
         {
             System.out.println(this.id + " of capacity: " + this.capacity + " assigned route with: "
-                    + this.route.getNumParcels() + " packages");
+                    + this.route.getNumParcels() + " packages. Total route distance: " + this.route.getLength());
         }
         else
         {

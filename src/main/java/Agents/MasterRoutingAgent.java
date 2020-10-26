@@ -54,7 +54,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         deliveryAgents = new ArrayList<>();
 
         //Generate a random specification.
-        map.reMap(Utilities.generateSpecification(20));
+        map.reMap(Utilities.generateSpecification(40));
 
         // GUI MENU
         menuBar.add(mapMenu);
@@ -187,6 +187,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
                 for(Route r : computedRoutes)
                 {
                     if(r.getNumParcels() > bestRoute.getNumParcels() &&
+                            r.getNumParcels() <= d.getCapacity() &&
                             !r.isAssigned())
                     {
                         bestRoute = r;
@@ -211,7 +212,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
                     // variable 'r' is our iteration count, initially the below value
                     int r = map.getLocations().size()^2;
                     // currently testing with 1000 iterations
-                    r = 1000;
+                    r = 10000;
                     // store current agent capacity as the package limit
                     int dCapacity = d.getCapacity();
                     // the population stores the evolving routes over the course of the algorithm's life cycle
@@ -264,7 +265,14 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
                             Route lRoute = population.get(0);
                             for(Route route : population)
                             {
-                                if(route.getLength() > lRoute.getLength())
+                                // calculate route length including distance to and from depot
+                                Route tRoute;
+                                ArrayList<Location> tLocations = new ArrayList<>();
+                                tLocations.addAll(route.getStops());
+                                tLocations.add(0, map.getDepot());
+                                tLocations.add(map.getDepot());
+                                tRoute = new Route(tLocations);
+                                if(tRoute.getLength() > lRoute.getLength())
                                 {
                                     lRoute = route;
                                 }
@@ -279,6 +287,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
                             Random rand = new Random();
                             Route pRoute1;
                             Route pRoute2;
+                            // pick two parent routes at random
                             pRoute1 = population.get(rand.nextInt(population.size()));
                             pRoute2 = population.get(rand.nextInt(population.size()));
                             // pLocations represents the pool of possible parent locations
@@ -288,13 +297,30 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
                             pLocations.addAll(pRoute2.getStops());
                             // cLocations collects new locations for generating a new child route
                             ArrayList<Location> cLocations = new ArrayList<>();
+                            // tCapacity keeps track of child route's capacity as its locations grow
+                            int tCapacity = 0;
+                            // keep adding new random locations until the child route's length equals either parent's
                             while(cLocations.size() < pRoute1.getStops().size() ||
                                     cLocations.size() < pRoute2.getStops().size())
                             {
                                 Location rLoc = pLocations.get(rand.nextInt(pLocations.size()));
-                                if(!cLocations.contains(rLoc))
+                                if(!cLocations.contains(rLoc) && tCapacity + rLoc.getNumPackages() <= d.getCapacity())
                                 {
                                     cLocations.add(rLoc);
+                                    tCapacity += rLoc.getNumPackages();
+                                }
+                                // check if there are any other possible locations to add, if not, break loop
+                                boolean more = false;
+                                for(Location l : pLocations)
+                                {
+                                    if (tCapacity + l.getNumPackages() <= d.getCapacity() && !cLocations.contains(l)) {
+                                        more = true;
+                                        break;
+                                    }
+                                }
+                                if(!more)
+                                {
+                                    break;
                                 }
                             }
                             nChildren.add(new Route(cLocations));
@@ -344,6 +370,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
     {
         deliveryAgents.add(new DeliveryAgent(id, capacity));
         update();
+        GUI.repaint();
         Future<List<Integer[]>> result = new Future<>();
         List<Integer[]> list = new ArrayList<>();
 

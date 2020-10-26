@@ -6,5 +6,5 @@ import jadex.commons.future.IFuture;
 public interface IDeliveryAgent
 {
     IFuture<Integer> getCapacity();
-    void setRoute(Route newRoute);
+    IFuture<Void> setRoute(Route newRoute);
 }

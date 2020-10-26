@@ -10,9 +10,8 @@ public class Location
     private int scaledX = 0, scaledY = 0;
     private final int width = 20;
     private final int height = 20;
-    private Integer numPackages = 0;
+    private Integer numParcels = 0;
     private boolean isDepot = false;
-    private boolean grouped = false;
 
     public Location(int X, int Y)
     {
@@ -22,7 +21,7 @@ public class Location
 
     public void addPackage()
     {
-        numPackages++;
+        numParcels++;
     }
 
     public int getX() {
@@ -44,13 +43,7 @@ public class Location
     }
     public int getScaledY() { return scaledY; }
 
-    public Integer getNumPackages() { return numPackages; }
-
-    public boolean isGrouped() { return grouped; }
-
-    public void group() { grouped = true; }
-
-    public void ungroup() { grouped = false; }
+    public Integer getNumParcels() { return numParcels; }
 
     public void makeDepot()
     {
@@ -64,7 +57,7 @@ public class Location
         if(!isDepot)
         {
             g.setColor(Color.WHITE);
-            g.drawString(numPackages.toString(), scaledX - width/6, scaledY + height/3);
+            g.drawString(numParcels.toString(), scaledX - width/6, scaledY + height/3);
         }
     }
 }

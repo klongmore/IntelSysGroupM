@@ -22,6 +22,8 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 // TODO: add agent argument for algorithm type which will then determine the route calculation.
 @RequiredServices(@RequiredService(name = "deliveryAgentService", type = IDeliveryAgent.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM)))
@@ -51,7 +53,7 @@ public class MasterRoutingAgent
         map = new Map();
 
         //Generate a random specification.
-        map.reMap(Utilities.generateSpecification(20));
+        map.reMap(Utilities.generateSpecification(28));
 
         //INIT MENUS
         JMenuBar menuBar = new JMenuBar();
@@ -206,13 +208,14 @@ public class MasterRoutingAgent
             Route bestRoute = new Route(new ArrayList<>());
             for (Route r : routes)
             {
-                if (r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity().get() && !r.isAssigned())
+                if (r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity().get() && !r.getAssigned())
                 {
                     bestRoute = r;
-                    r.assigned();
+                    r.setAssigned(true);
                 }
             }
-            //d.setRoute(bestRoute);
+            d.setRoute(bestRoute);
+            Utilities.assignColours(routes);
             map.addRoute(bestRoute);
         }
     }
@@ -231,65 +234,66 @@ public class MasterRoutingAgent
 
     private ArrayList<Route> doGNN(ArrayList<Integer> capacities)
     {
-        System.out.println("Doing GNN");
-
-        //Reset the current grouping of the map
+        //Reset Map Routes
         map.resetRoutes();
 
-        //Find the distance between the depot and the furthest location.
-        double thresholdDistance = Utilities.getFurthestDistance(map.getDepot(), map.getLocations()) / 2.5;
+        //Calculate Threshold
+        double thresholdDistance = Utilities.getFurthestDistance(map.getDepot(), map.getLocations()) / (requiredServicesFeature.getRequiredServices("deliveryAgentService").get().toArray().length / 2.0f);
 
-        //Determine groups of locations.
-        ArrayList<ArrayList<Location>> locationGroups = new ArrayList<>();
-        ArrayList<Location> group = new ArrayList<>();
-        for (Location l : map.getLocations())
+        //Sort capacities in descending order
+        capacities.sort(Collections.reverseOrder());
+        int numAgents = capacities.size();
+
+        ArrayList<Route> routes = new ArrayList<>();
+
+        //Group locations
+        for(Location l : map.getLocations())
         {
-            if (!l.isGrouped())
+            if(inRoute(l, routes) == null)
             {
-                l.group();
-                group.add(l);
-                for (Location j : map.getLocations())
+                for(Location j : map.getLocations())
                 {
-                    if (!j.isGrouped())
+                    if(j != l)
                     {
-                        //If the iterated location is within distance and not yet grouped, group it
-                        double distance = Math.hypot(l.getX() - j.getX(), l.getY() - j.getY());
-                        if (distance < thresholdDistance)
+                        double distance = Utilities.getEuclideanDistance(l, j);
+                        if(distance < thresholdDistance)
                         {
-                            j.group();
-                            group.add(j);
+                            Route addRoute = inRoute(j, routes);
+                            if(addRoute != null && (addRoute.getNumParcels() + l.getNumParcels()) < capacities.get(0))
+                            {
+                                addRoute.addStop(l);
+                                if(addRoute.getNumParcels() == capacities.get(0))
+                                {
+                                    capacities.remove(0);
+                                }
+                                break;
+                            }
+                            else if (addRoute == null && routes.size() < numAgents)
+                            {
+                                Route newRoute = new Route();
+                                newRoute.addStop(l);
+                                newRoute.addStop(j);
+                                routes.add(newRoute);
+                                break;
+                            }
                         }
                     }
                 }
             }
-            locationGroups.add(new ArrayList<>(group));
-            group.clear();
         }
+        System.out.println(routes.size());
+        return routes;
+    }
 
-        System.out.println(locationGroups.size());
-
-        //Generate routes from the determined groups
-        ArrayList<Route> computedRoutes = new ArrayList<>();
-        for (ArrayList<Location> g : locationGroups)
+    public Route inRoute(Location l, ArrayList<Route> routes)
+    {
+        for(Route route : routes)
         {
-            //Connect the next closest location to the previous
-            Location closest = map.getDepot();
-            ArrayList<Location> newList = new ArrayList<>();
-            ArrayList<Location> refList = new ArrayList<>(g);
-            for (int i = 0; i < g.size(); i++)
+            if(route.contains(l))
             {
-                Location nextClosest = Utilities.getClosestLocation(closest, refList);
-                newList.add(nextClosest);
-                closest = nextClosest;
-                refList.remove(closest);
+                return route;
             }
-
-            //Set depot as first and last locations in route
-            newList.add(0, map.getDepot());
-            newList.add(map.getDepot());
-            computedRoutes.add((new Route(newList)));
         }
-        System.out.println(computedRoutes.size());
-        return computedRoutes;
+        return null;
     }
 }

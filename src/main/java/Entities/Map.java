@@ -174,11 +174,6 @@ public class Map extends JPanel
 
     public void resetRoutes()
     {
-        for(Location l : locations)
-        {
-            l.ungroup();
-        }
-
         routes = new ArrayList<>();
     }
 }

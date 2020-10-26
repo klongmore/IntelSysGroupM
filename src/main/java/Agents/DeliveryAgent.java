@@ -14,9 +14,10 @@ import jadex.micro.annotation.*;
 @Agent
 public class DeliveryAgent implements IDeliveryAgent
 {
+    Route route;
+
     @AgentArgument
     Integer capacity;
-    Route route;
     @AgentFeature
     IRequiredServicesFeature requiredServicesFeature;
 
@@ -35,9 +36,10 @@ public class DeliveryAgent implements IDeliveryAgent
     }
 
     @Override
-    public void setRoute(Route newRoute)
+    public IFuture<Void> setRoute(Route newRoute)
     {
         route = newRoute;
+        return new Future<Void>();
     }
 }
 

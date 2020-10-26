@@ -41,35 +41,23 @@ public class Utilities
 
     public static double getFurthestDistance(Location refLocation, ArrayList<Location> list)
     {
-        double distance;
-        double furthestDistance = 0;
+        double furthest = 0;
         for(Location l : list)
         {
-            distance = Math.hypot(refLocation.getX() - l.getX(), refLocation.getY() - l.getY());
-            if(distance > furthestDistance)
+            double tempFurthest = getEuclideanDistance(refLocation, l);
+            if(tempFurthest > furthest)
             {
-                furthestDistance = distance;
+                furthest = tempFurthest;
             }
         }
-        return furthestDistance;
+        return furthest;
     }
 
-    public static Location getClosestLocation(Location refLocation, ArrayList<Location> list)
+    public static double getEuclideanDistance(Location location, Location other)
     {
-        double distance;
-        double closestDistance = 99999;
-        Location closestLocation = list.get(0);
-        for(Location l : list)
-        {
-            distance = Math.hypot(refLocation.getX() - l.getX(), refLocation.getY() - l.getY());
-            if(distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestLocation = l;
-            }
-        }
-
-        return closestLocation;
+        double y = Math.abs(location.getY() - other.getY());
+        double x = Math.abs(location.getX() - other.getX());
+        return Math.sqrt(y*y + x*x);
     }
 
     public static Map readSpecification(File spec)
@@ -138,7 +126,10 @@ public class Utilities
 
     public static void assignColours(ArrayList<Route> routes)
     {
-
+        for(int i = 0; i < routes.size(); i++)
+        {
+            routes.get(i).setColor(KELLY_COLOURS[i]);
+        }
     }
 
     public static void writeDemoSpecification()

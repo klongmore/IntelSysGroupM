@@ -88,17 +88,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="ArquillianJUnit" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -131,6 +120,10 @@
       <workItem from="1602556312786" duration="132000" />
       <workItem from="1602556477210" duration="2246000" />
       <workItem from="1602723979904" duration="2481000" />
+      <workItem from="1602727070043" duration="1475000" />
+      <workItem from="1603160259143" duration="597000" />
+      <workItem from="1603248409267" duration="5615000" />
+      <workItem from="1603254314874" duration="168000" />
     </task>
     <servers />
   </component>
@@ -164,11 +157,11 @@
     </state>
     <state x="551" y="264" width="826" height="602" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1602069205425" />
     <state x="734" y="395" width="1092" height="714" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1600218836810" />
-    <state x="1020" y="336" key="#com.intellij.ide.util.MemberChooser" timestamp="1602477026327">
+    <state x="1020" y="336" key="#com.intellij.ide.util.MemberChooser" timestamp="1603160334228">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state x="765" y="220" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1602184301171" />
-    <state x="1020" y="336" key="#com.intellij.ide.util.MemberChooser/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602477026327" />
+    <state x="1020" y="336" key="#com.intellij.ide.util.MemberChooser/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603160334228" />
     <state x="757" y="373" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1602069204010">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -193,46 +186,46 @@
     </state>
     <state x="795" y="328" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1602067543780" />
     <state x="1060" y="481" key="FileChooserDialogImpl/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1598513872202" />
-    <state width="2517" height="310" key="GridCell.Tab.0.bottom" timestamp="1602726502017">
+    <state width="2517" height="260" key="GridCell.Tab.0.bottom" timestamp="1603254484230">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="265" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1602185131469" />
-    <state width="2517" height="310" key="GridCell.Tab.0.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602726502017" />
-    <state width="2517" height="310" key="GridCell.Tab.0.center" timestamp="1602726502017">
+    <state width="2517" height="260" key="GridCell.Tab.0.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603254484230" />
+    <state width="2517" height="260" key="GridCell.Tab.0.center" timestamp="1603254484230">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="265" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1602185131468" />
-    <state width="2517" height="310" key="GridCell.Tab.0.center/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602726502017" />
-    <state width="2517" height="310" key="GridCell.Tab.0.left" timestamp="1602726502017">
+    <state width="2517" height="260" key="GridCell.Tab.0.center/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603254484230" />
+    <state width="2517" height="260" key="GridCell.Tab.0.left" timestamp="1603254484230">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="265" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1602185131468" />
-    <state width="2517" height="310" key="GridCell.Tab.0.left/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602726502017" />
-    <state width="2517" height="310" key="GridCell.Tab.0.right" timestamp="1602726502017">
+    <state width="2517" height="260" key="GridCell.Tab.0.left/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603254484230" />
+    <state width="2517" height="260" key="GridCell.Tab.0.right" timestamp="1603254484230">
       <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="265" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1602185131469" />
-    <state width="2517" height="310" key="GridCell.Tab.0.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1602726502017" />
-    <state width="1876" height="342" key="GridCell.Tab.1.bottom" timestamp="1602182362770">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="2517" height="260" key="GridCell.Tab.0.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603254484230" />
+    <state width="2517" height="484" key="GridCell.Tab.1.bottom" timestamp="1603254484227">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="342" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1602182362770" />
-    <state width="2517" height="484" key="GridCell.Tab.1.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599707712724" />
-    <state width="1876" height="342" key="GridCell.Tab.1.center" timestamp="1602182362770">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="2517" height="484" key="GridCell.Tab.1.bottom/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603254484227" />
+    <state width="2517" height="484" key="GridCell.Tab.1.center" timestamp="1603254484226">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="342" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1602182362770" />
-    <state width="2517" height="484" key="GridCell.Tab.1.center/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599707712724" />
-    <state width="1876" height="342" key="GridCell.Tab.1.left" timestamp="1602182362770">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="2517" height="484" key="GridCell.Tab.1.center/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603254484226" />
+    <state width="2517" height="484" key="GridCell.Tab.1.left" timestamp="1603254484226">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="342" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1602182362770" />
-    <state width="2517" height="484" key="GridCell.Tab.1.left/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599707712724" />
-    <state width="1876" height="342" key="GridCell.Tab.1.right" timestamp="1602182362770">
-      <screen x="0" y="0" width="1920" height="1040" />
+    <state width="2517" height="484" key="GridCell.Tab.1.left/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603254484226" />
+    <state width="2517" height="484" key="GridCell.Tab.1.right" timestamp="1603254484227">
+      <screen x="0" y="40" width="2560" height="1400" />
     </state>
     <state width="1876" height="342" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1602182362770" />
-    <state width="2517" height="484" key="GridCell.Tab.1.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1599707712724" />
+    <state width="2517" height="484" key="GridCell.Tab.1.right/0.40.2560.1400/-1920.40.1920.1040@0.40.2560.1400" timestamp="1603254484227" />
     <state x="490" y="174" key="Maven.ArtifactSearchDialog" timestamp="1601531335899">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -272,9 +265,16 @@
     </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
+        <PinnedItemInfo parentTag="Entities.Route" memberName="stops" />
         <PinnedItemInfo parentTag="jadex.bridge.service.component.BasicServiceInvocationHandler" memberName="service" />
       </pinned-members>
     </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="l" />
+        <watch expression="routes.get(0)" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/IntelSysGroupM$VRP.ic" NAME="VRP Coverage Results" MODIFIED="1601899153973" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />

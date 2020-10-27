@@ -29,6 +29,7 @@ public class Map extends JPanel
     //Remaps the map to a new configuration.
     public void reMap(Map newMap)
     {
+        resetRoutes();
         locations = newMap.locations;
         parcels = newMap.parcels;
         depot = newMap.depot;

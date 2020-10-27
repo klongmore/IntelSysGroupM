@@ -67,10 +67,12 @@ public class MasterRoutingAgent
         fileRead.setToolTipText("Select a JSON File to load the Map from.");
         fileRead.addActionListener(e ->
         {
+            //Only allow the user to select JSON files.
             JFileChooser chooser = new JFileChooser();
             FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON", "json");
             chooser.setFileFilter(filter);
 
+            //Recreate the map with the new specification.
             int returnValue = chooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION)
             {
@@ -119,14 +121,14 @@ public class MasterRoutingAgent
         SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 100, 1);
         JSpinner capacitySpinner = new JSpinner(spinnerModel);
 
-        JButton addButton = new JButton("Add Agent");
-        addButton.addActionListener(e->
+        JButton addAgentButton = new JButton("Add Agent");
+        addAgentButton.addActionListener(e->
         {
 
         });
 
         control.add(capacitySpinner);
-        control.add(addButton);
+        control.add(addAgentButton);
 
         //INIT MASTER GUI
         GUI.setJMenuBar(menuBar);

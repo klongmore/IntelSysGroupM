@@ -55,9 +55,26 @@ public class Utilities
 
     public static double getEuclideanDistance(Location location, Location other)
     {
-        double y = Math.abs(location.getY() - other.getY());
-        double x = Math.abs(location.getX() - other.getX());
-        return Math.sqrt(y*y + x*x);
+        if(location != null && other != null)
+        {
+            double y = Math.abs(location.getY() - other.getY());
+            double x = Math.abs(location.getX() - other.getX());
+            return Math.sqrt(y*y + x*x);
+        }
+        return Double.POSITIVE_INFINITY;
+    }
+
+    public static Location getNearestLocation(Location from, Route locations)
+    {
+        Location result = null;
+        for(Location to : locations.getStops())
+        {
+            if(getEuclideanDistance(from, to) < getEuclideanDistance(from, result) && to != from)
+            {
+                result = to;
+            }
+        }
+        return result;
     }
 
     public static Map readSpecification(File spec)

@@ -9,7 +9,6 @@ public class Route
 {
     private ArrayList<Location> stops = new ArrayList<>();
     private int numParcels = 0;
-    private boolean assigned = false;
     private Color color;
 
     public Route() {
@@ -32,13 +31,23 @@ public class Route
         numParcels += l.getNumParcels();
     }
 
+    public void moveStop(Location from, int to)
+    {
+        stops.add(to, stops.remove(stops.indexOf(from)));
+    }
+
+    public void setDepot(Location l)
+    {
+        stops.add(0, l);
+        stops.add(l);
+    }
+
     public void setColor(javafx.scene.paint.Color fxColor)
     {
         color = new Color((float) fxColor.getRed(),
                 (float) fxColor.getGreen(),
                 (float) fxColor.getBlue(),
                 (float) fxColor.getOpacity());
-        System.out.println(color);
     }
     public Color getColor()
     {
@@ -60,15 +69,6 @@ public class Route
     public void setNumParcels(int num)
     {
         numParcels = num;
-    }
-
-    public void setAssigned(boolean assign)
-    {
-        assigned = assign;
-    }
-    public boolean getAssigned()
-    {
-        return assigned;
     }
 
     public boolean contains(Location l)

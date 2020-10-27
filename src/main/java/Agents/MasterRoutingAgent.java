@@ -179,6 +179,9 @@ public class MasterRoutingAgent
         }
         else
         {
+            //Reset Existing Map Routes
+            map.resetRoutes();
+
             ArrayList<Route> result;
             switch (toRun)
             {
@@ -208,18 +211,19 @@ public class MasterRoutingAgent
         {
             IDeliveryAgent d = (IDeliveryAgent) da;
             Route bestRoute = new Route(new ArrayList<>());
-            for (Route r : routes)
+            ArrayList<Route> tempRoutes = new ArrayList<>(routes);
+            for (Route r : tempRoutes)
             {
-                if (r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity().get() && !r.getAssigned())
+                if (r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity().get())
                 {
                     bestRoute = r;
-                    r.setAssigned(true);
                 }
             }
             d.setRoute(bestRoute);
-            Utilities.assignColours(routes);
             map.addRoute(bestRoute);
+            tempRoutes.remove(bestRoute);
         }
+        Utilities.assignColours(routes);
     }
 
     private ArrayList<Route> doACO(ArrayList<Integer> capacities)
@@ -236,9 +240,6 @@ public class MasterRoutingAgent
 
     private ArrayList<Route> doGNN(ArrayList<Integer> capacities)
     {
-        //Reset Map Routes
-        map.resetRoutes();
-
         //Calculate Threshold
         double thresholdDistance = Utilities.getFurthestDistance(map.getDepot(), map.getLocations()) / (requiredServicesFeature.getRequiredServices("deliveryAgentService").get().toArray().length / 2.0f);
 
@@ -246,45 +247,82 @@ public class MasterRoutingAgent
         capacities.sort(Collections.reverseOrder());
         int numAgents = capacities.size();
 
+        //Result route list
         ArrayList<Route> routes = new ArrayList<>();
 
         //Group locations
-        for(Location l : map.getLocations())
+        while(routeTotal(routes) != map.getLocations().size())
         {
-            if(inRoute(l, routes) == null)
+            ArrayList<Integer> tempCapacities = new ArrayList<>(capacities);
+            routes = new ArrayList<>();
+
+            for(Location l : map.getLocations())
             {
-                for(Location j : map.getLocations())
+                if(inRoute(l, routes) == null)
                 {
-                    if(j != l)
+                    for(Location j : map.getLocations())
                     {
-                        double distance = Utilities.getEuclideanDistance(l, j);
-                        if(distance < thresholdDistance)
+                        if(j != l)
                         {
-                            Route addRoute = inRoute(j, routes);
-                            if(addRoute != null && (addRoute.getNumParcels() + l.getNumParcels()) < capacities.get(0))
+                            double distance = Utilities.getEuclideanDistance(l, j);
+                            if(distance < thresholdDistance)
                             {
-                                addRoute.addStop(l);
-                                if(addRoute.getNumParcels() == capacities.get(0))
+                                Route addRoute = inRoute(j, routes);
+                                if(addRoute != null && (addRoute.getNumParcels() + l.getNumParcels()) <= tempCapacities.get(0))
                                 {
-                                    capacities.remove(0);
+                                    addRoute.addStop(l);
+                                    if(addRoute.getNumParcels() == tempCapacities.get(0))
+                                    {
+                                        tempCapacities.remove(0);
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                            else if (addRoute == null && routes.size() < numAgents)
-                            {
-                                Route newRoute = new Route();
-                                newRoute.addStop(l);
-                                newRoute.addStop(j);
-                                routes.add(newRoute);
-                                break;
+                                else if (addRoute == null && routes.size() < numAgents)
+                                {
+                                    Route newRoute = new Route();
+                                    newRoute.addStop(l);
+                                    newRoute.addStop(j);
+                                    routes.add(newRoute);
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
+            thresholdDistance *= 1.5f;
         }
-        System.out.println(routes.size());
+
+        for(Route route : routes)
+        {
+            sort(route, map.getDepot());
+            route.setDepot(map.getDepot());
+        }
+
         return routes;
+    }
+
+    public void sort(Route route, Location start)
+    {
+        Location prevLocation = start;
+
+        for(int i = 0; i < route.getStops().size(); i++)
+        {
+            Location from = Utilities.getNearestLocation(prevLocation, route);
+            route.moveStop(from, i);
+            prevLocation = from;
+        }
+    }
+
+    public int routeTotal(ArrayList<Route> routes)
+    {
+        int result = 0;
+        for(Route route : routes)
+        {
+            result += route.getStops().size();
+        }
+
+        return result;
     }
 
     public Route inRoute(Location l, ArrayList<Route> routes)

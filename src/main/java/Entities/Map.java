@@ -179,6 +179,11 @@ public class Map extends JPanel
         this.routes.add(r);
     }
 
+    public void clearRoutes()
+    {
+        this.routes.clear();
+    }
+
     public void generateTestRoute()
     {
         Random rand = new Random();

@@ -14,7 +14,7 @@ public class VehicleRoutingProblem
 {
     public static void main(String[] args)
     {
-        int[] capacities = {10, 10, 10};
+        int[] capacities = {8, 9, 13};
 //        int[] capacities = {20};
         PlatformConfiguration config = PlatformConfiguration.getMinimal();
         config.setGui(true);
@@ -26,7 +26,7 @@ public class VehicleRoutingProblem
         for(int i=0; i < capacities.length; i++)
         {
             CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{capacities[i]}));
-            cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci);
+            cms.createComponent("Delivery Agent" + (i + 1), "Agents.DeliveryAgent.class", ci);
         }
     }
 

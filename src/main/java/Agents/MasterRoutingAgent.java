@@ -19,6 +19,7 @@ import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.Future;
 import jadex.commons.future.IFuture;
 import jadex.micro.annotation.*;
+import org.chocosolver.solver.constraints.nary.nValue.amnv.rules.R;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.Random;
 
 // TODO: add agent argument for algorithm type which will then determine the route calculation.
-@Arguments({@Argument(name="algorithm", description = "Integer value indicating algorithm to run", clazz = Integer.class, defaultvalue = "2")})
+@Arguments({@Argument(name="algorithm", description = "Integer value indicating algorithm to run", clazz = Integer.class, defaultvalue = "3")})
 @ProvidedServices(@ProvidedService(name = "masterRoutingService", type= IMasterRoutingAgent.class))
 @Agent
 public class MasterRoutingAgent implements IMasterRoutingAgent
@@ -54,7 +55,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         deliveryAgents = new ArrayList<>();
 
         //Generate a random specification.
-        map.reMap(Utilities.generateSpecification(40));
+        map.reMap(Utilities.generateSpecification(30));
 
         // GUI MENU
         menuBar.add(mapMenu);
@@ -212,7 +213,7 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
                     // variable 'r' is our iteration count, initially the below value
                     int r = map.getLocations().size()^2;
                     // currently testing with 1000 iterations
-                    r = 10000;
+                    r = 1000;
                     // store current agent capacity as the package limit
                     int dCapacity = d.getCapacity();
                     // the population stores the evolving routes over the course of the algorithm's life cycle
@@ -361,7 +362,365 @@ public class MasterRoutingAgent implements IMasterRoutingAgent
         // Progressive Bee Colony Swarm Optimisation
         else if (algorithm == 3)
         {
-
+            map.clearRoutes();
+            int nLocations = map.getLocations().size();
+            int nDeliveryAgents = deliveryAgents.size();
+            ArrayList<ArrayList<ArrayList<Route>>> bees = new ArrayList<>();
+            // generate a bee for each map location
+            for(int i = 0; i < nLocations; i++)
+            {
+                ArrayList<ArrayList<Route>> bee = new ArrayList<>();
+                bees.add(bee);
+            }
+            // initialise gBest - the current best solution amongst all bees ever
+            ArrayList<Route> gBest = new ArrayList<>();
+            // initialise winning bee pBest
+            ArrayList<Route> wBeePBest = new ArrayList<>();
+            // main loop
+            while(bees.size() > 0)
+            {
+                // generate random solutions for each bee
+                for(ArrayList<ArrayList<Route>> bee : bees)
+                {
+                    // number of solutions equal to total bees - 1
+                    for(int i = 0; i < bees.size() - 1; i++)
+                    {
+                        // each solution consists of routes, one route per delivery agent
+                        ArrayList<Route> solution = new ArrayList<>();
+                        // create pool of random map locations to choose from
+                        ArrayList<Location> pLocations = new ArrayList<>(map.getLocations());
+                        // list of all currently picked locations in solution
+                        ArrayList<Location> sLocations = new ArrayList<>();
+                        Random rand = new Random();
+                        for(DeliveryAgent d : deliveryAgents)
+                        {
+                            // new Route for each delivery agent in solution
+                            Route dRoute;
+                            // list of randomly picked locations to form new route
+                            ArrayList<Location> rLocations = new ArrayList<>();
+                            // temporary variable to track capacity of currently generating route
+                            int tCapacity = 0;
+                            // if a winning bee has been determined previously, use its starting points
+                            if(!wBeePBest.isEmpty())
+                            {
+                                Location initLoc = wBeePBest.get(deliveryAgents.indexOf(d)).getStops().get(0);
+                                rLocations.add(initLoc);
+                                sLocations.add(initLoc);
+                                pLocations.remove(initLoc);
+                                tCapacity += initLoc.getNumPackages();
+                            }
+                            // create route that utilises agent capacity as fully as possible
+                            while(tCapacity <= d.getCapacity())
+                            {
+                                // break if no more locations in pool
+                                if(pLocations.size() == 0)
+                                {
+                                    break;
+                                }
+                                // pick random location from pool
+                                Location rLoc = pLocations.get(rand.nextInt(pLocations.size()));
+                                // check if adding random location would exceed current capacity count
+                                if(tCapacity + rLoc.getNumPackages() <= d.getCapacity() && !sLocations.contains(rLoc))
+                                {
+                                    // update capacity, add location, remove from pool
+                                    tCapacity += rLoc.getNumPackages();
+                                    rLocations.add(rLoc);
+                                    sLocations.add(rLoc);
+                                    pLocations.remove(rLoc);
+                                }
+                                // check if there are any other possible locations to add, if not, break loop
+                                boolean more = false;
+                                for(Location l : pLocations)
+                                {
+                                    if (tCapacity + l.getNumPackages() <= d.getCapacity() &&
+                                            !rLocations.contains(l) &&
+                                            !sLocations.contains(l)){
+                                        more = true;
+                                        break;
+                                    }
+                                }
+                                if(!more)
+                                {
+                                    break;
+                                }
+                            }
+                            dRoute = new Route(rLocations);
+                            solution.add(dRoute);
+                        }
+                        bee.add(solution);
+                    }
+                }
+                // update gBest
+                if(gBest.size() == 0)
+                {
+                    // initialise first gBest to first solution of first bee
+                    gBest = new ArrayList<>(bees.get(0).get(0));
+                }
+                // calculate average of gBest for reference comparison
+                double gBestSum = 0;
+                for(Route r : gBest)
+                {
+                    gBestSum += r.getLength();
+                }
+                double gBestAvg = gBestSum/gBest.size();
+                // go through bees
+                for(ArrayList<ArrayList<Route>> bee : bees)
+                {
+                    // each solution
+                    for(ArrayList<Route> solution : bee)
+                    {
+                        double sum = 0;
+                        // each route in solution
+                        for(Route r : solution)
+                        {
+                            // create temporary route with depot added
+                            ArrayList<Location> tLocations = new ArrayList<>();
+                            tLocations.addAll(r.getStops());
+                            tLocations.add(0, map.getDepot());
+                            tLocations.add(map.getDepot());
+                            Route tRoute = new Route(tLocations);
+                            sum += tRoute.getLength();
+                        }
+                        double avg = sum/solution.size();
+                        // if better avg, update gBest
+                        if(avg < gBestAvg)
+                        {
+                            gBest = new ArrayList<>(solution);
+                        }
+                    }
+                }
+                // find winning bee - the bee with the best average across all of its solutions
+                double hNewAvgVal = 0;
+                ArrayList<ArrayList<Route>> wBee = new ArrayList<>();
+                ArrayList<ArrayList<Route>> wBeeRef = new ArrayList<>();
+                for(ArrayList<ArrayList<Route>> bee : bees)
+                {
+                    double newAvgSum = 0;
+                    for(ArrayList<Route> solution : bee)
+                    {
+//                        System.out.println(solution.size());
+                        double sSum = 0;
+                        for(Route r : solution)
+                        {
+                            // create temporary route with depot added
+                            ArrayList<Location> tLocations = new ArrayList<>();
+                            tLocations.addAll(r.getStops());
+                            tLocations.add(0, map.getDepot());
+                            tLocations.add(map.getDepot());
+                            Route tRoute = new Route(tLocations);
+                            sSum += tRoute.getLength();
+                        }
+                        double sAvg = sSum/solution.size();
+                        newAvgSum += sAvg;
+                    }
+                    double newAvgVal = newAvgSum/bee.size();
+                    if(hNewAvgVal == 0)
+                    {
+                        hNewAvgVal = newAvgVal;
+                        wBee = new ArrayList<>(bee);
+                    }
+                    if(newAvgVal < hNewAvgVal)
+                    {
+                        hNewAvgVal = newAvgVal;
+                        wBee = new ArrayList<>(bee);
+                        wBeeRef = bee;
+                    }
+                }
+                // find winning bee's pBest solution
+                double wBeePBestAvg = 0;
+                for(ArrayList<Route> solution : wBee)
+                {
+                    double sSum = 0;
+                    double sAvg;
+                    for(Route r : solution)
+                    {
+                        // create temporary route with depot added
+                        ArrayList<Location> tLocations = new ArrayList<>();
+                        tLocations.addAll(r.getStops());
+                        tLocations.add(0, map.getDepot());
+                        tLocations.add(map.getDepot());
+                        Route tRoute = new Route(tLocations);
+                        sSum += tRoute.getLength();
+                    }
+                    sAvg = sSum/solution.size();
+                    if(wBeePBestAvg == 0)
+                    {
+                        wBeePBestAvg = sAvg;
+                        wBeePBest = solution;
+                    }
+                    if(sAvg < wBeePBestAvg)
+                    {
+                        wBeePBestAvg = sAvg;
+                        wBeePBest = solution;
+                    }
+                }
+                // remove wBee from bee population
+                bees.remove(wBeeRef);
+                // reset bees
+                for(ArrayList<ArrayList<Route>> bee : bees)
+                {
+                    bee.clear();
+                }
+            }
+            for(DeliveryAgent d : deliveryAgents)
+            {
+                ArrayList<Location> dLocations = new ArrayList<>(gBest.get(deliveryAgents.indexOf(d)).getStops());
+                dLocations.add(0, map.getDepot());
+                dLocations.add(map.getDepot());
+                Route dRoute = new Route(dLocations);
+                d.setRoute(dRoute);
+                map.addRoute(dRoute);
+            }
+//            // run once per delivery agent for best possible route per agent
+//            for(DeliveryAgent d : deliveryAgents)
+//            {
+//                if(!d.hasRoute())
+//                {
+//                    // reference for current delivery agent capacity
+//                    int dCapacity = d.getCapacity();
+//                    // reference for unassigned map locations
+//                    ArrayList<Location> uLocations = map.getUnassignedLocations();
+//                    // each bee will be represented by an ArrayList of Locations
+//                    ArrayList<ArrayList<Route>> bees = new ArrayList<>();
+//                    // create a new bee for each unassigned location, and set that location as the first in its first route
+//                    for(Location l : uLocations)
+//                    {
+//                        ArrayList<Route> bee = new ArrayList<>();
+////                    bee.get(0).getStops().add(l);
+//                        ArrayList<Location> locations = new ArrayList<>();
+//                        locations.add(l);
+//                        bee.add(new Route(locations));
+//                        bees.add(bee);
+//                    }
+//                    // init gBest route
+//                    Route gBest = new Route(new ArrayList<>());
+//                    // loop continues until no bees left
+//                    while(bees.size() > 0)
+//                    {
+//                        // System.out.println(bees.size());
+//                        // generate (nBees - 1) random routes for each bee
+//                        for(ArrayList<Route> bee : bees)
+//                        {
+//                            Random rand = new Random();
+//                            for(int i = 0; i <= bees.size() - 1; i++)
+//                            {
+//                                // keep track of solution's package count
+//                                int tCapacity = 0;
+//                                // pool of locations to choose once at random
+//                                ArrayList<Location> pLocations = new ArrayList<>(uLocations);
+//                                // new Locations
+//                                ArrayList<Location> nLocations = new ArrayList<>();
+//                                if(i == 0)
+//                                {
+//                                    nLocations.add(bee.get(0).getStops().get(0));
+//                                    bee.remove(0);
+//                                }
+//                                while(tCapacity < dCapacity)
+//                                {
+//                                    if(pLocations.size() == 0)
+//                                    {
+//                                        break;
+//                                    }
+//                                    Location rLoc = pLocations.get(rand.nextInt(pLocations.size()));
+//                                    if(tCapacity + rLoc.getNumPackages() <= dCapacity)
+//                                    {
+//                                        tCapacity += rLoc.getNumPackages();
+//                                        nLocations.add(rLoc);
+//                                        //bee.get(i).getStops().add(rLoc);
+//                                        pLocations.remove(rLoc);
+////                                    System.out.println(nLocations.size());
+//                                    }
+//                                    // check if there are any other possible locations to add, if not, break loop
+//                                    boolean more = false;
+//                                    for(Location l : pLocations)
+//                                    {
+//                                        if (tCapacity + l.getNumPackages() <= dCapacity &&
+//                                                !nLocations.contains(l)) {
+//                                            more = true;
+//                                            break;
+//                                        }
+//                                    }
+//                                    if(!more)
+//                                    {
+//                                        break;
+//                                    }
+//                                }
+////                            System.out.println(nLocations.size());
+////                            System.out.println("Bee: " + bees.indexOf(bee) + ", Random route #: " + i);
+//                                bee.add(new Route(nLocations));
+//                            }
+//                        }
+//                        if(gBest.getLength() == 0)
+//                        {
+//                            ArrayList<Location> tLocations = new ArrayList<>();
+//                            tLocations.addAll(bees.get(0).get(0).getStops());
+//                            tLocations.add(0, map.getDepot());
+//                            tLocations.add(map.getDepot());
+//                            gBest = new Route(tLocations);
+//                        }
+//                        // update gBest
+//                        for(ArrayList<Route> bee : bees)
+//                        {
+//                            for(Route r : bee)
+//                            {
+//                                ArrayList<Location> tLocations = new ArrayList<>();
+//                                tLocations.addAll(r.getStops());
+//                                tLocations.add(0, map.getDepot());
+//                                tLocations.add(map.getDepot());
+//                                Route tRoute = new Route(tLocations);
+//                                if(tRoute.getLength() < gBest.getLength())
+//                                {
+//                                    gBest = tRoute;
+//                                }
+//                            }
+//                        }
+//                        // init winning bee as first bee
+//                        ArrayList<Route> winningBee = new ArrayList<>(bees.get(0));
+//                        ArrayList<Route> refWinningBee = bees.get(0);
+//                        // init highestNewAvgVal as first bee's newAvgVal
+//                        double highestNewAvgVal;
+//                        int sum = 0;
+//                        for(Route r : bees.get(0))
+//                        {
+//                            sum += r.getLength();
+//                        }
+//                        highestNewAvgVal = sum/bees.get(0).size();
+//                        // find highest newAvgVal across all bees
+//                        for(ArrayList<Route> bee : bees)
+//                        {
+//                            sum = 0;
+//                            for(Route r : bee)
+//                            {
+//                                sum += r.getLength();
+//                            }
+//                            double newAvgVal = sum/bee.size();
+//                            if(newAvgVal < highestNewAvgVal)
+//                            {
+//                                winningBee = new ArrayList<>(bee);
+//                                refWinningBee = bee;
+//                            }
+//                        }
+//                        // reset bees and set starting position of winning bee as new starting position for all bees
+//                        for(ArrayList<Route> bee : bees)
+//                        {
+//                            bee.clear();
+//                            ArrayList<Location> sLocation = new ArrayList<>();
+//                            sLocation.add(winningBee.get(0).getStops().get(0));
+//                            bee.add(new Route(sLocation));
+//                        }
+//                        // remove winning bee from bees
+//                        bees.remove(refWinningBee);
+//                    }
+//                    for(Location l : gBest.getStops())
+//                    {
+//                        l.visit();
+//                    }
+//                    System.out.println("gBest length: " + gBest.getLength());
+//                    System.out.println("gBest packages: " + gBest.getNumParcels());
+//                    d.setRoute(gBest);
+//                    map.addRoute(gBest);
+//                }
+//            }
         }
     }
 

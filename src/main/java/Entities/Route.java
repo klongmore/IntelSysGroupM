@@ -2,46 +2,53 @@ package Entities;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Random;
 
 //A collection of locations used by the DeliveryAgents.
 public class Route
 {
+    //Stops and parcel count for constraint assignment.
     private ArrayList<Location> stops = new ArrayList<>();
     private int numParcels = 0;
     private Color color;
 
-    public Route() {
+    //Empty constructor for Serialization.
+    public Route()
+    {
 
     }
 
+    //Constructs a route based on a list of locations.
     public Route(ArrayList<Location> locations)
     {
-        this.stops = new ArrayList<>();
+        stops = new ArrayList<>();
         for(Location l : locations)
         {
-            this.stops.add(l);
-            this.numParcels += l.getNumParcels();
+            stops.add(l);
+            numParcels += l.getNumParcels();
         }
     }
 
+    //Adds a stop to the existing Route.
     public void addStop(Location l)
     {
         stops.add(l);
         numParcels += l.getNumParcels();
     }
 
+    //Moves a stop within the Route. Used predominantly for GNN sorting.
     public void moveStop(Location from, int to)
     {
         stops.add(to, stops.remove(stops.indexOf(from)));
     }
 
+    //Sets the depot location at the beginning and end of the Route.
     public void setDepot(Location l)
     {
         stops.add(0, l);
         stops.add(l);
     }
 
+    //Color getter and setter for Serialization.
     public void setColor(javafx.scene.paint.Color fxColor)
     {
         color = new Color((float) fxColor.getRed(),
@@ -54,6 +61,7 @@ public class Route
         return color;
     }
 
+    //Stops getter and setter for Serialization.
     public ArrayList<Location> getStops()
     {
         return this.stops;
@@ -63,6 +71,7 @@ public class Route
         this.stops = locations;
     }
 
+    //Numparcels getter and setter for Serialization.
     public int getNumParcels() {
         return numParcels;
     }
@@ -71,11 +80,13 @@ public class Route
         numParcels = num;
     }
 
+    //Checks if the route contains a location.
     public boolean contains(Location l)
     {
         return stops.contains(l);
     }
 
+    //Paint method for Map.
     public void paint(Graphics g)
     {
         if(!stops.isEmpty())

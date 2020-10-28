@@ -13,17 +13,20 @@ public class Location
     private Integer numParcels = 0;
     private boolean isDepot = false;
 
+    //Constructs a location at a given XY coordinate.
     public Location(int X, int Y)
     {
         x = X;
         y = Y;
     }
 
+    //Adds a package to the location.
     public void addPackage()
     {
         numParcels++;
     }
 
+    //Coord getters.
     public int getX() {
         return x;
     }
@@ -31,25 +34,30 @@ public class Location
         return y;
     }
 
+    //Scaled X coord getter and setter.
     public void setScaledX(int sX)
     {
         scaledX = sX;
     }
     public int getScaledX() { return scaledX; }
 
+    //Scaled Y coord getter and setter.
     public void setScaledY(int sY)
     {
         scaledY = sY;
     }
     public int getScaledY() { return scaledY; }
 
+    //Returns the number of parcels to be delivered.
     public Integer getNumParcels() { return numParcels; }
 
+    //Designates the location as a Depot.
     public void makeDepot()
     {
         isDepot = true;
     }
 
+    //Paint method for Map.
     public void paint(Graphics g)
     {
         g.fillRect(scaledX - width/2, scaledY - height/2, width, height);

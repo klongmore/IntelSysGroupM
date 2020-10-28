@@ -64,16 +64,17 @@ public class Utilities
         return Double.POSITIVE_INFINITY;
     }
 
-    public static Location getNearestLocation(Location from, Route locations)
+    public static Location getNearestLocation(Location from, ArrayList<Location> locations)
     {
         Location result = null;
-        for(Location to : locations.getStops())
+        for(Location to : locations)
         {
             if(getEuclideanDistance(from, to) < getEuclideanDistance(from, result) && to != from)
             {
                 result = to;
             }
         }
+        locations.remove(result);
         return result;
     }
 

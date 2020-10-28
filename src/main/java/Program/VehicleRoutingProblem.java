@@ -17,7 +17,6 @@ public class VehicleRoutingProblem
         int nDeliveryAgents = 3;
         int[] capacities = {7, 9, 12};
         PlatformConfiguration config = PlatformConfiguration.getMinimal();
-        config.setGui(true);
         config.addComponent(MasterRoutingAgent.class);
         IExternalAccess platform = Starter.createPlatform(config).get();
         IComponentManagementService cms = SServiceProvider.getService(platform, IComponentManagementService.class).get();

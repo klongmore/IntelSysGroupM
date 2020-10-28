@@ -49,7 +49,6 @@ public class MasterRoutingAgent
 
         //INIT JFRAME VARIABLES
         GUI = new JFrame("Vehicle Routing Problem");
-        JPanel control = new JPanel();
         map = new Map();
 
         //Generate a random specification.
@@ -117,7 +116,9 @@ public class MasterRoutingAgent
         debug.add(fileWrite);
 
         //INIT CONTROL PANEL
+        JPanel control = new JPanel();
         control.setBorder(BorderFactory.createTitledBorder("Control"));
+
         SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 100, 1);
         JSpinner capacitySpinner = new JSpinner(spinnerModel);
 
@@ -129,6 +130,13 @@ public class MasterRoutingAgent
 
         control.add(capacitySpinner);
         control.add(addAgentButton);
+
+        JButton GNNButton = new JButton("Run Grouped Nearest Neighbour");
+        GNNButton.addActionListener(e->
+        {
+            runAlgorithm("GNN", agent);
+        });
+        control.add(GNNButton);
 
         //INIT MASTER GUI
         GUI.setJMenuBar(menuBar);
@@ -155,8 +163,6 @@ public class MasterRoutingAgent
         GUI.add(map, c);
         GUI.setVisible(true);
         GUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        runAlgorithm("GNN", agent);
     }
 
     //Runs an algorithm and assigns routes.
@@ -241,7 +247,7 @@ public class MasterRoutingAgent
     private ArrayList<Route> doGNN(ArrayList<Integer> capacities)
     {
         //Calculate Threshold
-        double thresholdDistance = Utilities.getFurthestDistance(map.getDepot(), map.getLocations()) / (requiredServicesFeature.getRequiredServices("deliveryAgentService").get().toArray().length / 2.0f);
+        double thresholdDistance = Utilities.getFurthestDistance(map.getDepot(), map.getLocations()) / 1.5f;
 
         //Sort capacities in descending order
         capacities.sort(Collections.reverseOrder());
@@ -290,7 +296,7 @@ public class MasterRoutingAgent
                     }
                 }
             }
-            thresholdDistance *= 1.5f;
+            thresholdDistance *= 1.01f;
         }
 
         for(Route route : routes)
@@ -304,11 +310,12 @@ public class MasterRoutingAgent
 
     public void sort(Route route, Location start)
     {
+        ArrayList<Location> unvisited = new ArrayList<>(route.getStops());
         Location prevLocation = start;
 
         for(int i = 0; i < route.getStops().size(); i++)
         {
-            Location from = Utilities.getNearestLocation(prevLocation, route);
+            Location from = Utilities.getNearestLocation(prevLocation, unvisited);
             route.moveStop(from, i);
             prevLocation = from;
         }

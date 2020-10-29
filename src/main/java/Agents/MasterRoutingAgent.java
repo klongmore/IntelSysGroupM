@@ -123,7 +123,7 @@ public class MasterRoutingAgent
         JSpinner capacitySpinner = new JSpinner(spinnerModel);
 
         JButton addAgentButton = new JButton("Add Agent");
-        addAgentButton.addActionListener(e->
+        addAgentButton.addActionListener(e ->
         {
 
         });
@@ -132,7 +132,7 @@ public class MasterRoutingAgent
         control.add(addAgentButton);
 
         JButton GNNButton = new JButton("Run Grouped Nearest Neighbour");
-        GNNButton.addActionListener(e->
+        GNNButton.addActionListener(e ->
         {
             runAlgorithm("GNN", agent);
         });
@@ -172,18 +172,17 @@ public class MasterRoutingAgent
         ArrayList<Integer> capacities = new ArrayList<>();
         int capacityTotal = 0;
         ITerminableIntermediateFuture<Object> fut = requiredServicesFeature.getRequiredServices("deliveryAgentService");
-        for(Object deliveryAgent : fut.get().toArray())
+        for (Object deliveryAgent : fut.get().toArray())
         {
-            IDeliveryAgent toGet = (IDeliveryAgent)deliveryAgent;
+            IDeliveryAgent toGet = (IDeliveryAgent) deliveryAgent;
             capacities.add(toGet.getCapacity().get());
             capacityTotal += toGet.getCapacity().get();
         }
 
-        if(map.getParcels().size() > capacityTotal)
+        if (map.getParcels().size() > capacityTotal)
         {
             JOptionPane.showConfirmDialog(GUI, "Too many parcels to deliver, please add more agents.", "Capacity Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-        }
-        else
+        } else
         {
             //Reset Existing Map Routes
             map.resetRoutes();
@@ -257,49 +256,69 @@ public class MasterRoutingAgent
         ArrayList<Route> routes = new ArrayList<>();
 
         //Group locations
-        while(routeTotal(routes) != map.getLocations().size())
+        while (routeTotal(routes) != map.getLocations().size())
         {
+            System.out.println(routeTotal(routes) + " : " + map.getLocations().size());
             ArrayList<Integer> tempCapacities = new ArrayList<>(capacities);
             routes = new ArrayList<>();
 
-            for(Location l : map.getLocations())
+            //For every unrouted location
+            for (Location l : map.getLocations())
             {
-                if(inRoute(l, routes) == null)
+                if (inRoute(l, routes) == null)
                 {
-                    for(Location j : map.getLocations())
+                    //For every other location within distance
+                    for (Location j : map.getLocations())
                     {
-                        if(j != l)
+                        if (j != l && (Utilities.getEuclideanDistance(l, j) < thresholdDistance))
                         {
-                            double distance = Utilities.getEuclideanDistance(l, j);
-                            if(distance < thresholdDistance)
+                            Route toAdd;
+                            Route lRoute = inRoute(l, routes);
+                            Route jRoute = inRoute(j, routes);
+
+                            if(jRoute == null && lRoute == null && (j.getNumParcels() + l.getNumParcels() < tempCapacities.get(0)))//If both j and l are unrouted, create a new route for them
                             {
-                                Route addRoute = inRoute(j, routes);
-                                if(addRoute != null && (addRoute.getNumParcels() + l.getNumParcels()) <= tempCapacities.get(0))
-                                {
-                                    addRoute.addStop(l);
-                                    if(addRoute.getNumParcels() == tempCapacities.get(0))
-                                    {
-                                        tempCapacities.remove(0);
-                                    }
-                                    break;
-                                }
-                                else if (addRoute == null && routes.size() < numAgents)
-                                {
-                                    Route newRoute = new Route();
-                                    newRoute.addStop(l);
-                                    newRoute.addStop(j);
-                                    routes.add(newRoute);
-                                    break;
-                                }
+                                toAdd = new Route();
+                                toAdd.addStop(l);
+                                toAdd.addStop(j);
+                            }
+                            else if(lRoute != null)//If l is routed but j is not, add j to l's route
+                            {
+
+                            }
+
+
+
+
+
+
+
+                            if (inRoute(l, routes) == null && (j.getNumParcels() + l.getNumParcels() <= tempCapacities.get(0)))
+                            {
+                                toAdd.addStop(l);
+                                toAdd.addStop(j);
+                                routes.add(toAdd);
+                            }
+                            else if (inRoute(l, routes) != null && (inRoute(l, routes).getNumParcels() + j.getNumParcels() <= tempCapacities.get(0)))
+                            {
+                                toAdd = inRoute(l, routes);
+                                toAdd.addStop(j);
+                            }
+
+                            if (!tempCapacities.isEmpty() && toAdd.getNumParcels() == tempCapacities.get(0))
+                            {
+                                System.out.println("Removing temp capacity " + tempCapacities.get(0) + " : " + toAdd.getNumParcels());
+                                tempCapacities.remove(0);
                             }
                         }
                     }
                 }
             }
             thresholdDistance *= 1.01f;
+            System.out.println(routes.size());
         }
 
-        for(Route route : routes)
+        for (Route route : routes)
         {
             sort(route, map.getDepot());
             route.setDepot(map.getDepot());
@@ -313,7 +332,7 @@ public class MasterRoutingAgent
         ArrayList<Location> unvisited = new ArrayList<>(route.getStops());
         Location prevLocation = start;
 
-        for(int i = 0; i < route.getStops().size(); i++)
+        for (int i = 0; i < route.getStops().size(); i++)
         {
             Location from = Utilities.getNearestLocation(prevLocation, unvisited);
             route.moveStop(from, i);
@@ -324,7 +343,7 @@ public class MasterRoutingAgent
     public int routeTotal(ArrayList<Route> routes)
     {
         int result = 0;
-        for(Route route : routes)
+        for (Route route : routes)
         {
             result += route.getStops().size();
         }
@@ -334,9 +353,9 @@ public class MasterRoutingAgent
 
     public Route inRoute(Location l, ArrayList<Route> routes)
     {
-        for(Route route : routes)
+        for (Route route : routes)
         {
-            if(route.contains(l))
+            if (route.contains(l))
             {
                 return route;
             }

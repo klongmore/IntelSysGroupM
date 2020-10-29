@@ -89,13 +89,15 @@ public class Route
     //Paint method for Map.
     public void paint(Graphics g)
     {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setStroke(new BasicStroke(2));
         if(!stops.isEmpty())
         {
             Location prevStop = stops.get(0);
             for(Location l : stops)
             {
-                g.setColor(color);
-                g.drawLine(prevStop.getScaledX(), prevStop.getScaledY(), l.getScaledX(), l.getScaledY());
+                g2d.setColor(color);
+                g2d.drawLine(prevStop.getScaledX(), prevStop.getScaledY(), l.getScaledX(), l.getScaledY());
                 prevStop = l;
             }
         }

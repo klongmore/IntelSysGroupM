@@ -130,7 +130,7 @@ public class MasterRoutingAgent
         JButton GNNButton = new JButton("Run Grouped Nearest Neighbour");
         GNNButton.addActionListener(e ->
         {
-            runAlgorithm("PBCSO", agent);
+            runAlgorithm("GNN", agent);
         });
         control.add(GNNButton);
 
@@ -517,7 +517,7 @@ public class MasterRoutingAgent
                     }
                 }
             }
-            thresholdDistance *= 1.01f;
+            thresholdDistance *= 1.50f;
         }
 
         for (Route route : routes)

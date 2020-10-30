@@ -14,8 +14,8 @@ public class VehicleRoutingProblem
 {
     public static void main(String[] args)
     {
-        int nDeliveryAgents = 3;
-        int[] capacities = {7, 9, 12};
+        int nDeliveryAgents = 2;
+        int[] capacities = {10, 10};
         PlatformConfiguration config = PlatformConfiguration.getMinimal();
         config.addComponent(MasterRoutingAgent.class);
         IExternalAccess platform = Starter.createPlatform(config).get();

@@ -48,7 +48,7 @@ public class MasterRoutingAgent
         map = new Map();
 
         //Generate a random specification.
-        map.reMap(Utilities.generateSpecification(28));
+        map.reMap(Utilities.generateSpecification(20));
 
         //INIT MENUS
         JMenuBar menuBar = new JMenuBar();
@@ -210,13 +210,13 @@ public class MasterRoutingAgent
     //Assigns computed routes to agents.
     private void assignRoutes(ArrayList<Route> routes)
     {
+        Utilities.assignColours(routes);
         //Assign agents with a route as close to their capacity as possible.
         for (Object da : requiredServicesFeature.getRequiredServices("deliveryAgentService").get().toArray())
         {
             IDeliveryAgent d = (IDeliveryAgent) da;
             Route bestRoute = new Route(new ArrayList<>());
-            ArrayList<Route> tempRoutes = new ArrayList<>(routes);
-            for (Route r : tempRoutes)
+            for (Route r : routes)
             {
                 if (r.getNumParcels() > bestRoute.getNumParcels() && r.getNumParcels() <= d.getCapacity().get())
                 {
@@ -225,9 +225,8 @@ public class MasterRoutingAgent
             }
             d.setRoute(bestRoute);
             map.addRoute(bestRoute);
-            tempRoutes.remove(bestRoute);
+            routes.remove(bestRoute);
         }
-        Utilities.assignColours(routes);
     }
 
     private ArrayList<Route> doNN(ArrayList<Integer> capacities)

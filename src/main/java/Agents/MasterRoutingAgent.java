@@ -1,7 +1,6 @@
 package Agents;
 
 //Takes constraints from the DeliveryAgents and uses an algorithm to determine the routes.
-
 import Entities.Location;
 import Entities.Map;
 import Entities.Route;
@@ -21,23 +20,20 @@ import jadex.micro.annotation.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Random;
 
 // TODO: add agent argument for algorithm type which will then determine the route calculation.
-@RequiredServices(@RequiredService(name = "deliveryAgentService", type = IDeliveryAgent.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM)))
+@RequiredServices({@RequiredService(name = "deliveryAgentService", type = IDeliveryAgent.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM)), @RequiredService(name = "cms", type = IComponentManagementService.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM))})
 @Agent
 public class MasterRoutingAgent
 {
     //GUI Variables
     private Map map;
     private JFrame GUI;
-
-    //JADEX Variables
-    PlatformConfiguration config = PlatformConfiguration.getMinimal();
-    IExternalAccess platform = Starter.createPlatform(config).get();
-    IComponentManagementService cms = SServiceProvider.getService(platform, IComponentManagementService.class).get();
 
     @AgentFeature
     IRequiredServicesFeature requiredServicesFeature;
@@ -119,7 +115,7 @@ public class MasterRoutingAgent
         JPanel control = new JPanel();
         control.setBorder(BorderFactory.createTitledBorder("Control"));
 
-        SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 100, 1);
+        SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 1000, 1);
         JSpinner capacitySpinner = new JSpinner(spinnerModel);
 
         JButton addAgentButton = new JButton("Add Agent");
@@ -134,7 +130,7 @@ public class MasterRoutingAgent
         JButton GNNButton = new JButton("Run Grouped Nearest Neighbour");
         GNNButton.addActionListener(e ->
         {
-            runAlgorithm("GNN", agent);
+            runAlgorithm("PBCSO", agent);
         });
         control.add(GNNButton);
 
@@ -196,8 +192,11 @@ public class MasterRoutingAgent
                 case "GA":
                     result = doGA(capacities);
                     break;
-                case "ACO":
-                    result = doACO(capacities);
+                case "NN":
+                    result = doNN(capacities);
+                    break;
+                case "PBCSO":
+                    result = doPBCSO(capacities);
                     break;
                 default:
                     result = new ArrayList<>();
@@ -231,34 +230,251 @@ public class MasterRoutingAgent
         Utilities.assignColours(routes);
     }
 
-    private ArrayList<Route> doACO(ArrayList<Integer> capacities)
+    private ArrayList<Route> doNN(ArrayList<Integer> capacities)
     {
-        ArrayList<Route> routes = new ArrayList<>();
-        return routes;
+        // pool of available locations
+        ArrayList<Location> pLocations = new ArrayList<>(map.getLocations());
+        HashMap<Integer, Route> routes = new HashMap<>();
+
+        for (Integer d : capacities)
+        {
+            if (!routes.containsKey(d))
+            {
+                // rLocations represents the locations to add to the final route
+                ArrayList<Location> rLocations = new ArrayList<>();
+                // rCapacity tracks the capacity of the route being generated
+                int rCapacity = 0;
+                // start at depot
+                rLocations.add(map.getDepot());
+                // init current location
+                Location thisLoc = rLocations.get(0);
+                while (rCapacity < d)
+                {
+                    if (pLocations.size() == 0)
+                    {
+                        break;
+                    }
+                    // find nextLoc
+                    Location nextLoc = pLocations.get(0);
+                    for (Location l : pLocations)
+                    {
+                        if (rCapacity + l.getNumParcels() <= d)
+                        {
+                            nextLoc = l;
+                        }
+                    }
+                    // look for next location until agent capacity is as full as possible
+                    double bestDist = Math.hypot(thisLoc.getX() - nextLoc.getX(), thisLoc.getY() - nextLoc.getY());
+                    for (Location l : pLocations)
+                    {
+                        double newDist = Math.hypot(thisLoc.getX() - l.getX(), thisLoc.getY() - l.getY());
+                        if (newDist < bestDist && rCapacity + l.getNumParcels() <= d)
+                        {
+                            bestDist = newDist;
+                            nextLoc = l;
+                        }
+                    }
+                    if (rCapacity + nextLoc.getNumParcels() <= d)
+                    {
+                        rCapacity += nextLoc.getNumParcels();
+                        rLocations.add(nextLoc);
+                        thisLoc = nextLoc;
+                        pLocations.remove(thisLoc);
+                    }
+                    // check if more options available
+                    boolean more = false;
+                    for (Location l : pLocations)
+                    {
+                        if (rCapacity + l.getNumParcels() <= d && !rLocations.contains(l))
+                        {
+                            more = true;
+                        }
+                    }
+                    if (!more)
+                    {
+                        break;
+                    }
+                }
+                rLocations.add(map.getDepot());
+                Route dRoute = new Route(rLocations);
+                routes.put(d, dRoute);
+            }
+        }
+
+        return new ArrayList<>(routes.values());
     }
 
     private ArrayList<Route> doGA(ArrayList<Integer> capacities)
     {
-        ArrayList<Route> routes = new ArrayList<>();
-        return routes;
+        HashMap<Integer, Route> routeMapping = new HashMap<>();
+
+        // algorithm is run once per agent to find most optimal available route
+        for (Integer d : capacities)
+        {
+            if (!routeMapping.containsKey(d))
+            {
+                // currently testing with 1000 iterations
+                Integer r = 10000;
+                // the population stores the evolving routes over the course of the algorithm's life cycle
+                ArrayList<Route> population = new ArrayList<>();
+                // generate 30 random routes with package counts equal to the lowest delivery agent capacity
+                for (int i = 1; i <= 30; i++)
+                {
+                    // copy of map locations to act as pool of random locations to choose from
+                    ArrayList<Location> mLocations = new ArrayList<>(map.getLocations());
+
+                    mLocations.removeIf(l -> inRoute(l, new ArrayList<>(routeMapping.values())) != null);
+
+                    // new locations consisting of randomly selected locations
+                    ArrayList<Location> nLocations = new ArrayList<>();
+                    // temporary capacity variable to make sure lCapacity is not exceeded
+                    int tCapacity = 0;
+                    Random rand = new Random();
+                    while (tCapacity < d)
+                    {
+                        Location rLoc = mLocations.get(rand.nextInt(mLocations.size()));
+                        // if the randomly selected location's package count doesn't exceed the current capacity count,
+                        // add it to the new list, remove it from the random pool, and increase capacity count accordingly.
+                        if (tCapacity + rLoc.getNumParcels() <= d && !nLocations.contains(rLoc))
+                        {
+                            nLocations.add(rLoc);
+                            mLocations.remove(rLoc);
+                            tCapacity += rLoc.getNumParcels();
+                        }
+                        // check if there are any other possible locations to add, if not, break loop
+                        boolean more = false;
+                        for (Location l : mLocations)
+                        {
+                            if (tCapacity + l.getNumParcels() <= d && !nLocations.contains(l))
+                            {
+                                more = true;
+                                break;
+                            }
+                        }
+                        if (!more)
+                        {
+                            break;
+                        }
+                    }
+                    // add newly generated route to population
+                    population.add(new Route(nLocations));
+                }
+                // begin main loop
+                for (int i = 0; i < r; i++)
+                {
+                    // evaluate population of routes and remove the worst 10 according to distance (longest)
+                    for (int j = 0; j < 10; j++)
+                    {
+                        // find longest route
+                        Route lRoute = population.get(0);
+                        for (Route route : population)
+                        {
+                            // calculate route length including distance to and from depot
+                            Route tRoute;
+                            ArrayList<Location> tLocations = new ArrayList<>();
+                            tLocations.addAll(route.getStops());
+                            tLocations.add(0, map.getDepot());
+                            tLocations.add(map.getDepot());
+                            tRoute = new Route(tLocations);
+                            if (tRoute.getLength() > lRoute.getLength())
+                            {
+                                lRoute = route;
+                            }
+                        }
+                        // remove longest route from population
+                        population.remove(lRoute);
+                    }
+                    // nChildren stores the child routes to be added to the population
+                    ArrayList<Route> nChildren = new ArrayList<>();
+                    // randomly generate 10 child routes from parent route locations
+                    for (int j = 0; j < 10; j++)
+                    {
+                        Random rand = new Random();
+                        Route pRoute1;
+                        Route pRoute2;
+                        // pick two parent routes at random
+                        pRoute1 = population.get(rand.nextInt(population.size()));
+                        pRoute2 = population.get(rand.nextInt(population.size()));
+                        // pLocations represents the pool of possible parent locations
+                        ArrayList<Location> pLocations = new ArrayList<>();
+                        // combine possible parent locations together into pool pLocations
+                        pLocations.addAll(pRoute1.getStops());
+                        pLocations.addAll(pRoute2.getStops());
+                        // cLocations collects new locations for generating a new child route
+                        ArrayList<Location> cLocations = new ArrayList<>();
+                        // tCapacity keeps track of child route's capacity as its locations grow
+                        int tCapacity = 0;
+                        // keep adding new random locations until the child route's length equals either parent's
+                        while (cLocations.size() < pRoute1.getStops().size() ||
+                                cLocations.size() < pRoute2.getStops().size())
+                        {
+                            Location rLoc = pLocations.get(rand.nextInt(pLocations.size()));
+                            if (!cLocations.contains(rLoc) && tCapacity + rLoc.getNumParcels() <= d)
+                            {
+                                cLocations.add(rLoc);
+                                tCapacity += rLoc.getNumParcels();
+                            }
+                            // check if there are any other possible locations to add, if not, break loop
+                            boolean more = false;
+                            for (Location l : pLocations)
+                            {
+                                if (tCapacity + l.getNumParcels() <= d && !cLocations.contains(l))
+                                {
+                                    more = true;
+                                    break;
+                                }
+                            }
+                            if (!more)
+                            {
+                                break;
+                            }
+                        }
+                        nChildren.add(new Route(cLocations));
+                    }
+                    for (Route child : nChildren)
+                    {
+                        population.add(child);
+                    }
+                }
+
+                // finalise routes by adding depot and marking locations as visited
+                for (Route route : population)
+                {
+                    route.getStops().add(0, map.getDepot());
+                    route.getStops().add(route.getStops().size(), map.getDepot());
+                }
+                // find shortest (best) route
+                Route sRoute = population.get(0);
+                for (Route route : population)
+                {
+                    if (route.getLength() < sRoute.getLength())
+                    {
+                        sRoute = route;
+                    }
+                }
+
+                routeMapping.put(d, sRoute);
+            }
+        }
+
+        return new ArrayList<>(routeMapping.values());
     }
 
     private ArrayList<Route> doGNN(ArrayList<Integer> capacities)
     {
         //Calculate Threshold
-        double thresholdDistance = Utilities.getFurthestDistance(map.getDepot(), map.getLocations()) / 1.5f;
+        double thresholdDistance = Utilities.getFurthestDistance(map.getDepot(), map.getLocations()) / 2.5f;
 
         //Sort capacities in descending order
         capacities.sort(Collections.reverseOrder());
-        int numAgents = capacities.size();
 
         //Result route list
         ArrayList<Route> routes = new ArrayList<>();
+        boolean searchComplete = false;
 
         //Group locations
-        while (routeTotal(routes) != map.getLocations().size())
+        while (!searchComplete)
         {
-            System.out.println(routeTotal(routes) + " : " + map.getLocations().size());
             ArrayList<Integer> tempCapacities = new ArrayList<>(capacities);
             routes = new ArrayList<>();
 
@@ -272,50 +488,36 @@ public class MasterRoutingAgent
                     {
                         if (j != l && (Utilities.getEuclideanDistance(l, j) < thresholdDistance))
                         {
-                            Route toAdd;
+                            Route toAdd = null;
                             Route lRoute = inRoute(l, routes);
                             Route jRoute = inRoute(j, routes);
 
-                            if(jRoute == null && lRoute == null && (j.getNumParcels() + l.getNumParcels() < tempCapacities.get(0)))//If both j and l are unrouted, create a new route for them
+                            if (jRoute == null && lRoute == null && (j.getNumParcels() + l.getNumParcels() <= tempCapacities.get(0)))//If both j and l are unrouted, create a new route for them
                             {
                                 toAdd = new Route();
                                 toAdd.addStop(l);
                                 toAdd.addStop(j);
-                            }
-                            else if(lRoute != null)//If l is routed but j is not, add j to l's route
-                            {
-
-                            }
-
-
-
-
-
-
-
-                            if (inRoute(l, routes) == null && (j.getNumParcels() + l.getNumParcels() <= tempCapacities.get(0)))
-                            {
-                                toAdd.addStop(l);
-                                toAdd.addStop(j);
                                 routes.add(toAdd);
-                            }
-                            else if (inRoute(l, routes) != null && (inRoute(l, routes).getNumParcels() + j.getNumParcels() <= tempCapacities.get(0)))
+                            } else if (jRoute == null && lRoute != null && (j.getNumParcels() + lRoute.getNumParcels() <= tempCapacities.get(0)))//If l is routed but j is not, add j to l's route
                             {
-                                toAdd = inRoute(l, routes);
+                                toAdd = lRoute;
                                 toAdd.addStop(j);
                             }
 
-                            if (!tempCapacities.isEmpty() && toAdd.getNumParcels() == tempCapacities.get(0))
+                            if (toAdd != null && !tempCapacities.isEmpty() && toAdd.getNumParcels() == tempCapacities.get(0))
                             {
-                                System.out.println("Removing temp capacity " + tempCapacities.get(0) + " : " + toAdd.getNumParcels());
                                 tempCapacities.remove(0);
+                            }
+
+                            if (routes.size() <= capacities.size() && routeTotal(routes) == map.getParcels().size())
+                            {
+                                searchComplete = true;
                             }
                         }
                     }
                 }
             }
             thresholdDistance *= 1.01f;
-            System.out.println(routes.size());
         }
 
         for (Route route : routes)
@@ -327,6 +529,227 @@ public class MasterRoutingAgent
         return routes;
     }
 
+    private ArrayList<Route> doPBCSO(ArrayList<Integer> capacities)
+    {
+        // for random selections
+        Random rand = new Random();
+        // bee population
+        ArrayList<ArrayList<ArrayList<Route>>> bees = new ArrayList<>();
+        // available locations for bees to 'bee' assigned to
+        ArrayList<Location> bLocations = new ArrayList<>(map.getLocations());
+        // solution of currently set, procedurally developing routes for existing bees to inherit
+        ArrayList<Route> setRoutes = new ArrayList<>();
+        // init setRoutes
+        for (int i = 0; i < capacities.size(); i++) {
+            setRoutes.add(new Route(new ArrayList<>()));
+        }
+        // init gBest, the current global best solution
+        ArrayList<Route> gBest = new ArrayList<>();
+        // init wBee, the winning bee of each loop iteration that determines next locations in solution routes
+        ArrayList<ArrayList<Route>> wBee = new ArrayList<>();
+        // generate a bee for each map location
+        for(int i = 0; i < bLocations.size(); i++)
+        {
+            ArrayList<ArrayList<Route>> bee = new ArrayList<>();
+            // init nSolution per bee equal to nBees - 1 (nBees = nLocations initially)
+            for (int j = 0; j < bLocations.size(); j++) {
+                // a solution is an array of routes, one route per delivery agent
+                ArrayList<Route> solution = new ArrayList<>();
+                for (int k = 0; k < capacities.size(); k++) {
+                    // all routes in all solutions have the same unique starting location per bee
+                    ArrayList<Location> startLoc = new ArrayList<>();
+                    startLoc.add(bLocations.get(i));
+                    Route newRoute = new Route(startLoc);
+                    solution.add(newRoute);
+                }
+                bee.add(solution);
+            }
+            bees.add(bee);
+        }
+        // main loop, continues until no bees left, bee with best solution removed each loop
+        while(bees.size() > 0)
+        {
+            // update bees
+            for(ArrayList<ArrayList<Route>> bee : bees)
+            {
+                // reference to bee's unique location
+                Location bLocation = bLocations.get(bees.indexOf(bee));
+                for(ArrayList<Route> solution : bee)
+                {
+                    // updated solution
+                    ArrayList<Route> uSolution = new ArrayList<>();
+                    // every solution will begin with the setRoutes as a base
+                    // the next location in every route is the bee's unique location
+                    // the remaining locations in every route are random until there are no more random ones
+                    // setRoutes will eventually equal gBest
+                    // pLocations is the pool of available random locations to fill up each route
+                    ArrayList<Location> pLocations = new ArrayList<>(bLocations);
+                    pLocations.remove(bLocation);
+                    for(int i = 0; i < capacities.size(); i++)
+                    {
+                        Route newRoute;
+                        ArrayList<Location> newLocations = new ArrayList<>();
+                        // if there are set routes, add them first
+                        if(setRoutes.size() > 0)
+                        {
+                            newLocations.addAll(setRoutes.get(i).getStops());
+                            pLocations.removeAll(setRoutes.get(i).getStops());
+                        }
+                        newLocations.add(bLocation);
+                        newRoute = new Route(newLocations);
+                        int tCapacity = newRoute.getNumParcels();
+                        // fill remaining capacity with random locations
+                        while(tCapacity < capacities.get(i))
+                        {
+                            if(pLocations.size() == 0)
+                            {
+                                break;
+                            }
+                            int rIndex = rand.nextInt(pLocations.size());
+                            if(rIndex == pLocations.size())
+                            {
+                                rIndex--;
+                            }
+                            Location rLoc = pLocations.get(rIndex);
+                            if(tCapacity + rLoc.getNumParcels() <= capacities.get(i) &&
+                                    !newLocations.contains(rLoc))
+                            {
+                                tCapacity += rLoc.getNumParcels();
+                                newLocations.add(rLoc);
+                                pLocations.remove(rLoc);
+                            }
+                            boolean more = false;
+                            for(Location l : pLocations)
+                            {
+                                if (tCapacity + l.getNumParcels() <= capacities.get(i) &&
+                                        !newLocations.contains(l))
+                                {
+                                    more = true;
+                                    break;
+                                }
+                            }
+                            if(!more)
+                            {
+                                break;
+                            }
+                        }
+                        newRoute = new Route(newLocations);
+                        uSolution.add(newRoute);
+                    }
+                    bee.set(bee.indexOf(solution), uSolution);
+                }
+            }
+            // update gBest
+            if(gBest.size() == 0)
+            {
+                gBest = bees.get(0).get(0);
+            }
+            double gBestLongest = gBest.get(0).getLength();
+            for(Route r : gBest)
+            {
+                Route tRoute = r;
+                tRoute.getStops().add(0, map.getDepot());
+                tRoute.getStops().add(map.getDepot());
+                if(tRoute.getLength() > gBestLongest)
+                {
+                    gBestLongest = r.getLength();
+                }
+            }
+            for(ArrayList<ArrayList<Route>> bee : bees)
+            {
+                // if the length of the longest route of a solution is shorter than the longest of gBest,
+                // that solution becomes the new gBest
+                for(ArrayList<Route> solution : bee)
+                {
+                    double sLongest = solution.get(0).getLength();
+                    for(Route r : solution)
+                    {
+                        Route tRoute = r;
+                        tRoute.getStops().add(0, map.getDepot());
+                        tRoute.getStops().add(map.getDepot());
+                        if(tRoute.getLength() > sLongest)
+                        {
+                            sLongest = r.getLength();
+                        }
+                    }
+                    if(sLongest < gBestLongest)
+                    {
+                        gBest = new ArrayList<>(solution);
+                    }
+                }
+            }
+            // update winning bee
+            wBee = new ArrayList<>(bees.get(0));
+            double wBeeAVgValSum = 0;
+            for(ArrayList<Route> solution : wBee)
+            {
+                double sLongest = solution.get(0).getLength();
+                for(Route r : solution)
+                {
+                    Route tRoute = r;
+                    tRoute.getStops().add(0, map.getDepot());
+                    tRoute.getStops().add(map.getDepot());
+                    if(tRoute.getLength() > sLongest)
+                    {
+                        sLongest = r.getLength();
+                    }
+                }
+                wBeeAVgValSum += sLongest;
+            }
+            double wBeeAvgVal = wBeeAVgValSum/wBee.size();
+            for(ArrayList<ArrayList<Route>> bee : bees)
+            {
+                double bAvgValSum = 0;
+                for(ArrayList<Route> solution : bee)
+                {
+                    double sLongest = solution.get(0).getLength();
+                    for(Route r : solution)
+                    {
+                        Route tRoute = r;
+                        tRoute.getStops().add(0, map.getDepot());
+                        tRoute.getStops().add(map.getDepot());
+                        if(tRoute.getLength() > sLongest)
+                        {
+                            sLongest = r.getLength();
+                        }
+                    }
+                    bAvgValSum += sLongest;
+                }
+                double bAvgVal = bAvgValSum/bee.size();
+                if(bAvgVal < wBeeAvgVal)
+                {
+                    wBee = new ArrayList<>(bee);
+                }
+            }
+            // remove winning bee unique location from bLocations
+            bLocations.remove(wBee.get(0).get(0).getStops().get(map.getLocations().size() - bees.size()));
+            // update the setRoutes, append new position of winning bee
+            for (int i = 0; i < capacities.size(); i++) {
+                setRoutes.get(i).getStops().add(wBee.get(0).get(0).getStops().get(map.getLocations().size() - bees.size()));
+            }
+            // remove winning bee from bees
+            bees.remove(wBee);
+            gBestLongest = gBest.get(0).getLength();
+            for(Route r : gBest)
+            {
+                Route tRoute = r;
+                tRoute.getStops().add(0, map.getDepot());
+                tRoute.getStops().add(map.getDepot());
+                if(tRoute.getLength() > gBestLongest)
+                {
+                    gBestLongest = r.getLength();
+                }
+            }
+        }
+        for(Route r : gBest)
+        {
+            r.getStops().add(0, map.getDepot());
+            r.getStops().add(map.getDepot());
+        }
+        map.resetRoutes();
+        return gBest;
+    }
+
     public void sort(Route route, Location start)
     {
         ArrayList<Location> unvisited = new ArrayList<>(route.getStops());
@@ -334,7 +757,7 @@ public class MasterRoutingAgent
 
         for (int i = 0; i < route.getStops().size(); i++)
         {
-            Location from = Utilities.getNearestLocation(prevLocation, unvisited);
+            Location from = Utilities.getBestLocation(start, prevLocation, unvisited);
             route.moveStop(from, i);
             prevLocation = from;
         }
@@ -345,7 +768,7 @@ public class MasterRoutingAgent
         int result = 0;
         for (Route route : routes)
         {
-            result += route.getStops().size();
+            result += route.getNumParcels();
         }
 
         return result;

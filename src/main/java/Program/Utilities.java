@@ -64,14 +64,17 @@ public class Utilities
         return Double.POSITIVE_INFINITY;
     }
 
-    public static Location getNearestLocation(Location from, ArrayList<Location> locations)
+    public static Location getBestLocation(Location start, Location from, ArrayList<Location> locations)
     {
         Location result = null;
+        double bestDistance = Double.POSITIVE_INFINITY;
         for(Location to : locations)
         {
-            if(getEuclideanDistance(from, to) < getEuclideanDistance(from, result) && to != from)
+            double testDistance = (getEuclideanDistance(from, to) + getEuclideanDistance(start, to))/2;
+            if(testDistance < bestDistance && to != from)
             {
                 result = to;
+                bestDistance = testDistance;
             }
         }
         locations.remove(result);

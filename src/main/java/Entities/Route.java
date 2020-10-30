@@ -1,5 +1,7 @@
 package Entities;
 
+import Program.Utilities;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -15,6 +17,13 @@ public class Route
     public Route()
     {
 
+    }
+
+    public Route(Route route)
+    {
+        numParcels = route.getNumParcels();
+        stops = new ArrayList<>(route.getStops());
+        color = route.getColor();
     }
 
     //Constructs a route based on a list of locations.
@@ -78,6 +87,17 @@ public class Route
     public void setNumParcels(int num)
     {
         numParcels = num;
+    }
+
+    //Get's length of the Route
+    public int getLength()
+    {
+        int length = 0;
+        for(int i = 0; i < stops.size() - 1; i++)
+        {
+            length += Utilities.getEuclideanDistance(stops.get(i), stops.get(i+1));
+        }
+        return length;
     }
 
     //Checks if the route contains a location.

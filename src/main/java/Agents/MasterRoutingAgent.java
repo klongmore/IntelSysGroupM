@@ -20,6 +20,7 @@ import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.SUtil;
 import jadex.commons.future.IFuture;
 import jadex.commons.future.ITerminableIntermediateFuture;
+import jadex.commons.future.ITuple2Future;
 import jadex.micro.annotation.*;
 
 import javax.swing.*;
@@ -138,14 +139,29 @@ public class MasterRoutingAgent
         };
         JTable agentTable = new JTable(agentModel);
 
-        SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 1000, 1);
+        SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 100000, 1);
         JSpinner capacitySpinner = new JSpinner(spinnerModel);
 
         JButton addAgentButton = new JButton("Add Agent");
         addAgentButton.addActionListener(e ->
         {
             CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{capacitySpinner.getValue()}));
-            cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci);
+            ITuple2Future agentInfo = cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci);
+            ((DefaultTableModel)agentTable.getModel()).addRow(new Object[]{agentInfo.getFirstResult(), capacitySpinner.getValue()});
+        });
+
+        JButton resetAgentButton = new JButton("Reset Agents");
+        resetAgentButton.addActionListener(e -> {
+            for(IComponentIdentifier id : cms.getComponentIdentifiers().get())
+            {
+                System.out.println(id);
+                if(id.toString().contains("Delivery Agent"))
+                {
+                    ((DefaultTableModel)agentTable.getModel()).removeRow(0);
+                    cms.destroyComponent(id);
+                }
+            }
+            map.resetRoutes();
         });
 
         cc.gridwidth = 1;
@@ -155,16 +171,18 @@ public class MasterRoutingAgent
         innerPanel.add(capacitySpinner, cc);
         cc.gridx = 1;
         innerPanel.add(addAgentButton, cc);
+        cc.gridx = 2;
+        innerPanel.add(resetAgentButton, cc);
 
-        cc.gridwidth = 2;
+        cc.gridwidth = 3;
         cc.gridx = 0;
         cc.gridy = 1;
-        innerPanel.add(agentTable, cc);
+        innerPanel.add(new JScrollPane(agentTable), cc);
 
         JButton GNNButton = new JButton("Run Grouped Nearest Neighbour");
         GNNButton.addActionListener(e ->
         {
-            runAlgorithm("GNN", agent);
+            runAlgorithm("GNN");
         });
         cc.gridy = 2;
         innerPanel.add(GNNButton, cc);
@@ -172,7 +190,7 @@ public class MasterRoutingAgent
         JButton GAButton = new JButton("Run Genetic Algorithm");
         GAButton.addActionListener(e ->
         {
-            runAlgorithm("GA", agent);
+            runAlgorithm("GA");
         });
         cc.gridy = 3;
         innerPanel.add(GAButton, cc);
@@ -180,7 +198,7 @@ public class MasterRoutingAgent
         JButton NNButton = new JButton("Run Nearest Neighbour");
         NNButton.addActionListener(e ->
         {
-            runAlgorithm("NN", agent);
+            runAlgorithm("NN");
         });
         cc.gridy = 4;
         innerPanel.add(NNButton, cc);
@@ -188,7 +206,7 @@ public class MasterRoutingAgent
         JButton PBCSOButton = new JButton("Run PBCSO");
         PBCSOButton.addActionListener(e ->
         {
-            runAlgorithm("PBCSO", agent);
+            runAlgorithm("PBCSO");
         });
         cc.gridy = 5;
         innerPanel.add(PBCSOButton, cc);
@@ -197,7 +215,7 @@ public class MasterRoutingAgent
 
         //INIT MASTER GUI
         GUI.setJMenuBar(menuBar);
-        GUI.setSize(860, 640);
+        GUI.setSize(1800, 640);
         GUI.setMinimumSize(GUI.getSize());
         GUI.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -223,13 +241,14 @@ public class MasterRoutingAgent
     }
 
     //Runs an algorithm and assigns routes.
-    private void runAlgorithm(String toRun, IInternalAccess agent)
+    private void runAlgorithm(String toRun)
     {
         //Get all agent capacities in a list
         ArrayList<Integer> capacities = new ArrayList<>();
         int capacityTotal = 0;
-        ITerminableIntermediateFuture<Object> fut = requiredServicesFeature.getRequiredServices("deliveryAgentService");
-        for (Object deliveryAgent : fut.get().toArray())
+        ITerminableIntermediateFuture<Object> fut = requiredServicesFeature.getRequiredServices("deliveryAgentService", true);
+
+        for (Object deliveryAgent : fut.get())
         {
             IDeliveryAgent toGet = (IDeliveryAgent) deliveryAgent;
             capacities.add(toGet.getCapacity().get());
@@ -239,7 +258,8 @@ public class MasterRoutingAgent
         if (map.getParcels().size() > capacityTotal)
         {
             JOptionPane.showConfirmDialog(GUI, "Too many parcels to deliver, please add more agents.", "Capacity Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-        } else
+        }
+        else
         {
             //Reset Existing Map Routes
             map.resetRoutes();
@@ -388,9 +408,14 @@ public class MasterRoutingAgent
                 // temporary capacity variable to make sure lCapacity is not exceeded
                 int tCapacity = 0;
                 Random rand = new Random();
-                while (tCapacity < d)
+                while (tCapacity < d && mLocations.size() != 0)
                 {
-                    Location rLoc = mLocations.get(rand.nextInt(mLocations.size()));
+                    int rIndex = rand.nextInt(mLocations.size());
+                    if(rIndex == mLocations.size())
+                    {
+                        rIndex--;
+                    }
+                    Location rLoc = mLocations.get(rIndex);
                     // if the randomly selected location's package count doesn't exceed the current capacity count,
                     // add it to the new list, remove it from the random pool, and increase capacity count accordingly.
                     if (tCapacity + rLoc.getNumParcels() <= d && !nLocations.contains(rLoc))

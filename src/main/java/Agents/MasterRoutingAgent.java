@@ -603,227 +603,99 @@ public class MasterRoutingAgent
 
     private ArrayList<Route> doPBCSO(ArrayList<Integer> capacities)
     {
-        // for random selections
-        Random rand = new Random();
-        // bee population
-        ArrayList<ArrayList<ArrayList<Route>>> bees = new ArrayList<>();
-        // available locations for bees to 'bee' assigned to
-        ArrayList<Location> bLocations = new ArrayList<>(map.getLocations());
-        // solution of currently set, procedurally developing routes for existing bees to inherit
-        ArrayList<Route> setRoutes = new ArrayList<>();
-        // init setRoutes
-        for (int i = 0; i < capacities.size(); i++)
+        Collections.sort(capacities, Collections.reverseOrder());
+
+        ArrayList<Location> progressiveGlobalLocations = new ArrayList<>();
+        ArrayList<Route> gbestSol = new ArrayList<>();
+        double gbestLongestRouteLength = Double.POSITIVE_INFINITY;
+
+        ArrayList<Location> remainingLocations = new ArrayList<>(map.getLocations());
+
+        while (remainingLocations.size() > 0)
         {
-            setRoutes.add(new Route(new ArrayList<>()));
-        }
-        // init gBest, the current global best solution
-        ArrayList<Route> gBest = new ArrayList<>();
-        // init wBee, the winning bee of each loop iteration that determines next locations in solution routes
-        ArrayList<ArrayList<Route>> wBee = new ArrayList<>();
-        // generate a bee for each map location
-        for (int i = 0; i < bLocations.size(); i++)
-        {
-            ArrayList<ArrayList<Route>> bee = new ArrayList<>();
-            // init nSolution per bee equal to nBees - 1 (nBees = nLocations initially)
-            for (int j = 0; j < bLocations.size(); j++)
+            Location winningLoc = new Location(0, 0);
+            double winningLocAvgLongestRouteLength = Double.POSITIVE_INFINITY;
+            for (int l = 0; l < remainingLocations.size(); l++)
             {
-                // a solution is an array of routes, one route per delivery agent
-                ArrayList<Route> solution = new ArrayList<>();
-                for (int k = 0; k < capacities.size(); k++)
+                double totalLongestRouteLength = 0;
+                double avgLongestRouteLength;
+                for (int x = 0; x < Math.pow(remainingLocations.size(), 2); x++)
                 {
-                    // all routes in all solutions have the same unique starting location per bee
-                    ArrayList<Location> startLoc = new ArrayList<>();
-                    startLoc.add(bLocations.get(i));
-                    Route newRoute = new Route(startLoc);
-                    solution.add(newRoute);
-                }
-                bee.add(solution);
-            }
-            bees.add(bee);
-        }
-        // main loop, continues until no bees left, bee with best solution removed each loop
-        while (bees.size() > 0)
-        {
-            // update bees
-            for (ArrayList<ArrayList<Route>> bee : bees)
-            {
-                // reference to bee's unique location
-                Location bLocation = bLocations.get(bees.indexOf(bee));
-                for (ArrayList<Route> solution : bee)
-                {
-                    // updated solution
-                    ArrayList<Route> uSolution = new ArrayList<>();
-                    // every solution will begin with the setRoutes as a base
-                    // the next location in every route is the bee's unique location
-                    // the remaining locations in every route are random until there are no more random ones
-                    // setRoutes will eventually equal gBest
-                    // pLocations is the pool of available random locations to fill up each route
-                    ArrayList<Location> pLocations = new ArrayList<>(bLocations);
-                    pLocations.remove(bLocation);
-                    for (int i = 0; i < capacities.size(); i++)
+                    ArrayList<Route> randomSol = new ArrayList<>();
+                    Route initial = new Route();
+                    randomSol.add(initial);
+                    int whichRoute = 0;
+                    int sizeTracker = 0;
+                    for (int i = 0; i < progressiveGlobalLocations.size(); i++)
                     {
-                        Route newRoute;
-                        ArrayList<Location> newLocations = new ArrayList<>();
-                        // if there are set routes, add them first
-                        if (setRoutes.size() > 0)
+                        if (sizeTracker >= capacities.get(whichRoute))
                         {
-                            newLocations.addAll(setRoutes.get(i).getStops());
-                            pLocations.removeAll(setRoutes.get(i).getStops());
+                            whichRoute++;
+                            Route extra = new Route();
+                            randomSol.add(extra);
+                            sizeTracker -= i;
                         }
-                        newLocations.add(bLocation);
-                        newRoute = new Route(newLocations);
-                        int tCapacity = newRoute.getNumParcels();
-                        // fill remaining capacity with random locations
-                        while (tCapacity < capacities.get(i))
+                        else
                         {
-                            if (pLocations.size() == 0)
-                            {
-                                break;
-                            }
-                            int rIndex = rand.nextInt(pLocations.size());
-                            if (rIndex == pLocations.size())
-                            {
-                                rIndex--;
-                            }
-                            Location rLoc = pLocations.get(rIndex);
-                            if (tCapacity + rLoc.getNumParcels() <= capacities.get(i) &&
-                                    !newLocations.contains(rLoc))
-                            {
-                                tCapacity += rLoc.getNumParcels();
-                                newLocations.add(rLoc);
-                                pLocations.remove(rLoc);
-                            }
-                            boolean more = false;
-                            for (Location l : pLocations)
-                            {
-                                if (tCapacity + l.getNumParcels() <= capacities.get(i) &&
-                                        !newLocations.contains(l))
-                                {
-                                    more = true;
-                                    break;
-                                }
-                            }
-                            if (!more)
-                            {
-                                break;
-                            }
+                            sizeTracker++;
                         }
-                        newRoute = new Route(newLocations);
-                        uSolution.add(newRoute);
+                        randomSol.get(whichRoute).addStop(progressiveGlobalLocations.get(i));
                     }
-                    bee.set(bee.indexOf(solution), uSolution);
-                }
-            }
-            // update gBest
-            if (gBest.size() == 0)
-            {
-                gBest = bees.get(0).get(0);
-            }
-            double gBestLongest = gBest.get(0).getLength();
-            for (Route r : gBest)
-            {
-                Route tRoute = r;
-                tRoute.getStops().add(0, map.getDepot());
-                tRoute.getStops().add(map.getDepot());
-                if (tRoute.getLength() > gBestLongest)
-                {
-                    gBestLongest = r.getLength();
-                }
-            }
-            for (ArrayList<ArrayList<Route>> bee : bees)
-            {
-                // if the length of the longest route of a solution is shorter than the longest of gBest,
-                // that solution becomes the new gBest
-                for (ArrayList<Route> solution : bee)
-                {
-                    double sLongest = solution.get(0).getLength();
-                    for (Route r : solution)
+                    if (randomSol.get(whichRoute).getStops().size() > capacities.get(whichRoute) - 1)
                     {
-                        Route tRoute = r;
-                        tRoute.getStops().add(0, map.getDepot());
-                        tRoute.getStops().add(map.getDepot());
-                        if (tRoute.getLength() > sLongest)
+                        whichRoute++;
+                        Route extra = new Route();
+                        randomSol.add(extra);
+                    }
+                    randomSol.get(whichRoute).addStop(remainingLocations.get(l));
+                    ArrayList<Location> toBeSet = new ArrayList<>(remainingLocations);
+                    toBeSet.remove(remainingLocations.get(l));
+                    int routeTracker = 0;
+                    for (int r = 0; r < remainingLocations.size() - 1; r++)
+                    {
+                        if (routeTracker >= capacities.get(whichRoute))
                         {
-                            sLongest = r.getLength();
+                            whichRoute++;
+                            Route extra = new Route();
+                            randomSol.add(extra);
+                            routeTracker -= r;
+                        }
+                        else
+                        {
+                            routeTracker++;
+                        }
+                        Random rand = new Random();
+                        int randInt = rand.nextInt(toBeSet.size());
+                        Location randLoc = toBeSet.get(randInt);
+                        randomSol.get(whichRoute).addStop(randLoc);
+                        toBeSet.remove(randLoc);
+                    }
+                    double longestRouteLength = 0;
+                    for (Route lr : randomSol)
+                    {
+                        if (lr.getLength() > longestRouteLength)
+                        {
+                            longestRouteLength = lr.getLength();
                         }
                     }
-                    if (sLongest < gBestLongest)
+                    if (longestRouteLength < gbestLongestRouteLength)
                     {
-                        gBest = new ArrayList<>(solution);
+                        gbestLongestRouteLength = longestRouteLength;
+                        gbestSol = randomSol;
                     }
+                    totalLongestRouteLength += longestRouteLength;
                 }
-            }
-            // update winning bee
-            wBee = new ArrayList<>(bees.get(0));
-            double wBeeAVgValSum = 0;
-            for (ArrayList<Route> solution : wBee)
-            {
-                double sLongest = solution.get(0).getLength();
-                for (Route r : solution)
+                avgLongestRouteLength = totalLongestRouteLength / Math.pow(remainingLocations.size(), 2);
+                if (avgLongestRouteLength < winningLocAvgLongestRouteLength)
                 {
-                    Route tRoute = r;
-                    tRoute.getStops().add(0, map.getDepot());
-                    tRoute.getStops().add(map.getDepot());
-                    if (tRoute.getLength() > sLongest)
-                    {
-                        sLongest = r.getLength();
-                    }
-                }
-                wBeeAVgValSum += sLongest;
-            }
-            double wBeeAvgVal = wBeeAVgValSum / wBee.size();
-            for (ArrayList<ArrayList<Route>> bee : bees)
-            {
-                double bAvgValSum = 0;
-                for (ArrayList<Route> solution : bee)
-                {
-                    double sLongest = solution.get(0).getLength();
-                    for (Route r : solution)
-                    {
-                        Route tRoute = r;
-                        tRoute.getStops().add(0, map.getDepot());
-                        tRoute.getStops().add(map.getDepot());
-                        if (tRoute.getLength() > sLongest)
-                        {
-                            sLongest = r.getLength();
-                        }
-                    }
-                    bAvgValSum += sLongest;
-                }
-                double bAvgVal = bAvgValSum / bee.size();
-                if (bAvgVal < wBeeAvgVal)
-                {
-                    wBee = new ArrayList<>(bee);
+                    winningLocAvgLongestRouteLength = avgLongestRouteLength;
+                    winningLoc = remainingLocations.get(l);
                 }
             }
-            // remove winning bee unique location from bLocations
-            bLocations.remove(wBee.get(0).get(0).getStops().get(map.getLocations().size() - bees.size()));
-            // update the setRoutes, append new position of winning bee
-            for (int i = 0; i < capacities.size(); i++)
-            {
-                setRoutes.get(i).getStops().add(wBee.get(0).get(0).getStops().get(map.getLocations().size() - bees.size()));
-            }
-            // remove winning bee from bees
-            bees.remove(wBee);
-            gBestLongest = gBest.get(0).getLength();
-            for (Route r : gBest)
-            {
-                Route tRoute = r;
-                tRoute.getStops().add(0, map.getDepot());
-                tRoute.getStops().add(map.getDepot());
-                if (tRoute.getLength() > gBestLongest)
-                {
-                    gBestLongest = r.getLength();
-                }
-            }
+            progressiveGlobalLocations.add(winningLoc);
+            remainingLocations.remove(winningLoc);
         }
-        for (Route r : gBest)
-        {
-            r.getStops().add(0, map.getDepot());
-            r.getStops().add(map.getDepot());
-        }
-        map.resetRoutes();
-        return gBest;
+        return gbestSol;
     }
 
     public void sort(Route route, Location start)

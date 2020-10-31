@@ -151,9 +151,17 @@ public class Map extends JPanel
             // draw routes
             if(!routes.isEmpty())
             {
+                g.setColor(Color.BLACK);
+                g.drawString("Route Length:", 10, 25);
+                int keyInc = 0;
                 for(Route route : routes)
                 {
+                    g.setColor(route.getColor());
+                    g.fillRect(10, keyInc * 20 + 30, 20, 20);
+                    g.setColor(Color.BLACK);
+                    g.drawString(""+route.getLength(), 35, keyInc * 20 + 45);
                     route.paint(g);
+                    keyInc++;
                 }
             }
             // draw locations

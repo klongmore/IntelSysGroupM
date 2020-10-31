@@ -38,7 +38,6 @@ public class DeliveryAgent implements IDeliveryAgent
     @Override
     public IFuture<Void> setRoute(Route newRoute)
     {
-        System.out.println("Agent with capacity " + capacity + " has been assigned route with " + newRoute.getNumParcels() + " parcels.");
         route = newRoute;
         return new Future<Void>();
     }

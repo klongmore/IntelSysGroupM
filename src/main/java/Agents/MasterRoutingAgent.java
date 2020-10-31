@@ -129,7 +129,13 @@ public class MasterRoutingAgent
         JPanel innerPanel = new JPanel();
         innerPanel.setLayout(new GridBagLayout());
 
-        TableModel agentModel = new DefaultTableModel(new Object[]{"Agent", "Capacity"}, 0);
+        TableModel agentModel = new DefaultTableModel(new Object[]{"Agent", "Capacity"}, 0){
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
         JTable agentTable = new JTable(agentModel);
 
         SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 1000, 1);
@@ -139,9 +145,7 @@ public class MasterRoutingAgent
         addAgentButton.addActionListener(e ->
         {
             CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{capacitySpinner.getValue()}));
-            IComponentIdentifier agentID = cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci).getFirstResult();
-            System.out.println(agentID);
-            ((DefaultTableModel)agentTable.getModel()).addRow(new Object[]{agentID, capacitySpinner.getValue()});
+            cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci);
         });
 
         cc.gridwidth = 1;

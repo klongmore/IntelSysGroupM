@@ -3,10 +3,23 @@ package Program;
 import Entities.Location;
 import Entities.Map;
 import Entities.Route;
+import Interfaces.IDeliveryAgent;
+import jadex.bridge.IComponentIdentifier;
+import jadex.bridge.service.component.IRequiredServicesFeature;
+import jadex.bridge.service.types.cms.CreationInfo;
+import jadex.bridge.service.types.cms.IComponentDescription;
+import jadex.bridge.service.types.cms.IComponentManagementService;
+import jadex.commons.SUtil;
+import jadex.commons.future.ITerminableIntermediateFuture;
+import jadex.commons.future.ITuple2Future;
 import javafx.scene.paint.Color;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -81,7 +94,7 @@ public class Utilities
         return result;
     }
 
-    public static Map readSpecification(File spec)
+    public static Map readSpecification(File spec, IComponentManagementService cms, TableModel model)
     {
         Map result = new Map();
 
@@ -95,7 +108,13 @@ public class Utilities
             JSONArray parcels = (JSONArray) JSONobj.get("parcels");
             JSONObject depot = (JSONObject) JSONobj.get("depot");
 
-            //TODO: Add Agents based on the agents in the JSON file
+            agents.forEach(agent ->
+            {
+                int capacity = Integer.parseInt(((JSONObject)agent).get("capacity").toString());
+                CreationInfo ci = new CreationInfo(SUtil.createHashMap(new String[]{"capacity"}, new Object[]{capacity}));
+                ITuple2Future agentInfo = cms.createComponent("Delivery Agent", "Agents.DeliveryAgent.class", ci);
+                ((DefaultTableModel)model).addRow(new Object[]{agentInfo.getFirstResult(), capacity});
+            });
 
             Location setDepot = new Location(((Long)depot.get("X")).intValue(), ((Long)depot.get("Y")).intValue());
             setDepot.makeDepot();
@@ -115,7 +134,7 @@ public class Utilities
         Map result = new Map();
 
         Random rand = new Random();
-        int locationDeviation = rand.nextInt(numParcels/4);
+        int locationDeviation = rand.nextInt((numParcels/4) + 1);
 
         for(int i = 0; i < numParcels - locationDeviation; i++)
         {
@@ -140,9 +159,31 @@ public class Utilities
         return result;
     }
 
-    public static void saveSpecification(Map map)
+    public static void saveSpecification(Map map, IRequiredServicesFeature requiredServicesFeature)
     {
+        JSONObject output = map.mapJSON();
 
+        JSONArray agents = new JSONArray();
+        ITerminableIntermediateFuture<Object> fut = requiredServicesFeature.getRequiredServices("deliveryAgentService", true);
+        for (Object deliveryAgent : fut.get())
+        {
+            IDeliveryAgent toGet = (IDeliveryAgent) deliveryAgent;
+            JSONObject capacity = new JSONObject();
+            capacity.put("capacity", toGet.getCapacity().get());
+            agents.add(capacity);
+        }
+
+        output.put("agents", agents);
+
+        try(FileWriter file = new FileWriter("VRP.json"))
+        {
+            file.write(output.toJSONString());
+            file.flush();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public static void assignColours(ArrayList<Route> routes)
@@ -150,77 +191,6 @@ public class Utilities
         for(int i = 0; i < routes.size(); i++)
         {
             routes.get(i).setColor(KELLY_COLOURS[i]);
-        }
-    }
-
-    public static void writeDemoSpecification()
-    {
-        JSONObject DA1 = new JSONObject();
-        JSONObject DA2 = new JSONObject();
-        JSONObject DA3 = new JSONObject();
-        JSONObject DA4 = new JSONObject();
-
-        DA1.put("capacity", 2);
-        DA2.put("capacity", 5);
-        DA3.put("capacity", 6);
-        DA4.put("capacity", 10);
-
-        JSONArray agentList = new JSONArray();
-        agentList.add(DA1);
-        agentList.add(DA2);
-        agentList.add(DA3);
-        agentList.add(DA4);
-
-        JSONObject Loc1 = new JSONObject();
-        JSONObject Loc2 = new JSONObject();
-        JSONObject Loc3 = new JSONObject();
-        JSONObject Loc4 = new JSONObject();
-        JSONObject Loc5 = new JSONObject();
-        JSONObject Loc6 = new JSONObject();
-
-        Loc1.put("X", 40);
-        Loc1.put("Y", 40);
-
-        Loc2.put("X", 120);
-        Loc2.put("Y", 120);
-
-        Loc3.put("X", 400);
-        Loc3.put("Y", 100);
-
-        Loc6.put("X", 400);
-        Loc6.put("Y", 100);
-
-        Loc4.put("X", 160);
-        Loc4.put("Y", 200);
-
-        Loc5.put("X", 300);
-        Loc5.put("Y", 90);
-
-        JSONArray parcelList = new JSONArray();
-        parcelList.add(Loc1);
-        parcelList.add(Loc2);
-        parcelList.add(Loc3);
-        parcelList.add(Loc4);
-        parcelList.add(Loc5);
-        parcelList.add(Loc6);
-
-        JSONObject depot = new JSONObject();
-        depot.put("X", 200);
-        depot.put("Y", 300);
-
-        JSONObject total = new JSONObject();
-        total.put("parcels", parcelList);
-        total.put("agents", agentList);
-        total.put("depot", depot);
-
-        try(FileWriter file = new FileWriter("VRP.json"))
-        {
-            file.write(total.toJSONString());
-            file.flush();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
         }
     }
 }

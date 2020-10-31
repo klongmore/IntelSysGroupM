@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 
-// TODO: add agent argument for algorithm type which will then determine the route calculation.
 @RequiredServices({@RequiredService(name = "deliveryAgentService", type = IDeliveryAgent.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM)), @RequiredService(name = "cms", type = IComponentManagementService.class, binding = @Binding(scope = RequiredServiceInfo.SCOPE_PLATFORM))})
 @Agent
 public class MasterRoutingAgent
@@ -57,15 +56,17 @@ public class MasterRoutingAgent
         GUI = new JFrame("Vehicle Routing Problem");
         map = new Map();
 
-        //Generate a random specification.
-        map.reMap(Utilities.generateSpecification(60));
-
         //INIT MENUS
         JMenuBar menuBar = new JMenuBar();
         JMenu mapMenu = new JMenu("Map");
-        JMenu debug = new JMenu("Debug");
         menuBar.add(mapMenu);
-        menuBar.add(debug);
+        TableModel agentModel = new DefaultTableModel(new Object[]{"Agent", "Capacity"}, 0){
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
 
         //Create a menu item to read a specification from a file.
         JMenuItem fileRead = new JMenuItem("Load");
@@ -81,9 +82,17 @@ public class MasterRoutingAgent
             int returnValue = chooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION)
             {
-                map.reMap(Utilities.readSpecification(chooser.getSelectedFile()));
+                map.reMap(Utilities.readSpecification(chooser.getSelectedFile(), cms, agentModel));
                 GUI.repaint();
             }
+        });
+
+        //Create a menu item to save a specification to a file.
+        JMenuItem fileSave = new JMenuItem("Save");
+        fileSave.setToolTipText("Save your current configuration to a JSON file.");
+        fileSave.addActionListener(e ->
+        {
+            Utilities.saveSpecification(map, requiredServicesFeature);
         });
 
         //Create a menu item to create a random specification.
@@ -109,17 +118,9 @@ public class MasterRoutingAgent
             map.reMap(Utilities.generateSpecification(numParcels));
             GUI.repaint();
         });
-
         mapMenu.add(fileRead);
+        mapMenu.add(fileSave);
         mapMenu.add(randomGenerate);
-
-        //Create a menu item to create a debug specification for testing reading.
-        JMenuItem fileWrite = new JMenuItem("Write Demo File");
-        fileWrite.addActionListener(e ->
-        {
-            Utilities.writeDemoSpecification();
-        });
-        debug.add(fileWrite);
 
         //INIT CONTROL PANEL
         JPanel control = new JPanel();
@@ -130,13 +131,6 @@ public class MasterRoutingAgent
         JPanel innerPanel = new JPanel();
         innerPanel.setLayout(new GridBagLayout());
 
-        TableModel agentModel = new DefaultTableModel(new Object[]{"Agent", "Capacity"}, 0){
-            @Override
-            public boolean isCellEditable(int row, int column)
-            {
-                return false;
-            }
-        };
         JTable agentTable = new JTable(agentModel);
 
         SpinnerModel spinnerModel = new SpinnerNumberModel(10, 0, 100000, 1);

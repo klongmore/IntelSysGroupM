@@ -603,29 +603,43 @@ public class MasterRoutingAgent
 
     private ArrayList<Route> doPBCSO(ArrayList<Integer> capacities)
     {
+        // Sort capacities largest > smallest
         Collections.sort(capacities, Collections.reverseOrder());
 
+        // Array placeholders for 'locked in' positions, as well as for gbest
         ArrayList<Location> progressiveGlobalLocations = new ArrayList<>();
         ArrayList<Route> gbestSol = new ArrayList<>();
         double gbestLongestRouteLength = Double.POSITIVE_INFINITY;
 
+        // Copy of map locations that we can delete from
         ArrayList<Location> remainingLocations = new ArrayList<>(map.getLocations());
 
         while (remainingLocations.size() > 0)
         {
+            // Placeholder for 'winner' location
             Location winningLoc = new Location(0, 0);
             double winningLocAvgLongestRouteLength = Double.POSITIVE_INFINITY;
+
+            // Iterate remaining locations
             for (int l = 0; l < remainingLocations.size(); l++)
             {
                 double totalLongestRouteLength = 0;
                 double avgLongestRouteLength;
+
+                // Create randomised routes per tested location
                 for (int x = 0; x < Math.pow(remainingLocations.size(), 2); x++)
                 {
                     ArrayList<Route> randomSol = new ArrayList<>();
                     Route initial = new Route();
                     randomSol.add(initial);
+
+                    // Will increase when rolling over route locations from route 1 to route 2, etc
                     int whichRoute = 0;
+
+                    // Checks when to roll over whichRoute
                     int sizeTracker = 0;
+
+                    // Adds 'locked in' locations to current randomSol
                     for (int i = 0; i < progressiveGlobalLocations.size(); i++)
                     {
                         if (sizeTracker >= capacities.get(whichRoute))
@@ -641,6 +655,8 @@ public class MasterRoutingAgent
                         }
                         randomSol.get(whichRoute).addStop(progressiveGlobalLocations.get(i));
                     }
+
+                    // Adds location we are currently testing to randomSol
                     if (randomSol.get(whichRoute).getStops().size() > capacities.get(whichRoute) - 1)
                     {
                         whichRoute++;
@@ -650,6 +666,8 @@ public class MasterRoutingAgent
                     randomSol.get(whichRoute).addStop(remainingLocations.get(l));
                     ArrayList<Location> toBeSet = new ArrayList<>(remainingLocations);
                     toBeSet.remove(remainingLocations.get(l));
+
+                    // Randomises the rest of the locations of randomSol
                     int routeTracker = 0;
                     for (int r = 0; r < remainingLocations.size() - 1; r++)
                     {
@@ -670,6 +688,8 @@ public class MasterRoutingAgent
                         randomSol.get(whichRoute).addStop(randLoc);
                         toBeSet.remove(randLoc);
                     }
+
+                    // Evaluates value of solutions based on length of longest route, assigns gbest, winningLoc
                     double longestRouteLength = 0;
                     for (Route lr : randomSol)
                     {
@@ -695,6 +715,14 @@ public class MasterRoutingAgent
             progressiveGlobalLocations.add(winningLoc);
             remainingLocations.remove(winningLoc);
         }
+
+        // Adds depot to start/end of routes
+        for (Route route : gbestSol)
+        {
+            route.setDepot(map.getDepot());
+        }
+
+        // Returns solution
         return gbestSol;
     }
 
